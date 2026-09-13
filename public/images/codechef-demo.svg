@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 860" fill="none">
+  <rect width="1440" height="860" rx="28" fill="#16120f"/>
+  <rect x="48" y="40" width="1344" height="56" rx="16" fill="#211c18"/>
+  <circle cx="80" cy="68" r="7" fill="#c47c4a"/>
+  <circle cx="106" cy="68" r="7" fill="#7a6556"/>
+  <circle cx="132" cy="68" r="7" fill="#7a6556"/>
+  <text x="168" y="74" fill="#e8d5c4" font-family="Arial, sans-serif" font-size="18" font-weight="700">CodeChef</text>
+  <text x="280" y="74" fill="#8d7a6c" font-family="Arial, sans-serif" font-size="14">Practice · Contests · Problemset</text>
+  <rect x="48" y="124" width="320" height="688" rx="24" fill="#211c18"/>
+  <circle cx="108" cy="196" r="32" fill="#c47c4a"/>
+  <text x="156" y="192" fill="#f3e6d8" font-family="Arial, sans-serif" font-size="22" font-weight="700">Kitchen</text>
+  <text x="156" y="218" fill="#8d7a6c" font-family="Arial, sans-serif" font-size="14">Contest practice desk</text>
+  <rect x="72" y="268" width="272" height="14" rx="7" fill="#2c251f"/>
+  <rect x="72" y="296" width="196" height="14" rx="7" fill="#2c251f"/>
+  <rect x="72" y="360" width="272" height="88" rx="18" fill="#2c251f"/>
+  <rect x="72" y="464" width="272" height="88" rx="18" fill="#2c251f"/>
+  <rect x="72" y="568" width="272" height="88" rx="18" fill="#2c251f"/>
+  <rect x="400" y="124" width="992" height="220" rx="24" fill="#211c18"/>
+  <text x="436" y="172" fill="#8d7a6c" font-family="Arial, sans-serif" font-size="13">RATING CURVE</text>
+  <path d="M452 292 C560 280 620 240 740 248 C860 256 940 210 1080 204 C1200 200 1280 188 1348 176" stroke="#c47c4a" stroke-width="4" fill="none"/>
+  <circle cx="1348" cy="176" r="6" fill="#f3e6d8"/>
+  <rect x="400" y="368" width="320" height="444" rx="24" fill="#211c18"/>
+  <text x="436" y="416" fill="#8d7a6c" font-family="Arial, sans-serif" font-size="13">DIVISION</text>
+  <text x="436" y="468" fill="#f3e6d8" font-family="Arial, sans-serif" font-size="42" font-weight="700">Practice</text>
+  <text x="436" y="508" fill="#c47c4a" font-family="Arial, sans-serif" font-size="16">Starters · Cook-Off · Lunchtime</text>
+  <rect x="436" y="548" width="248" height="16" rx="8" fill="#2c251f"/>
+  <rect x="436" y="580" width="188" height="16" rx="8" fill="#2c251f"/>
+  <rect x="744" y="368" width="648" height="444" rx="24" fill="#211c18"/>
+  <text x="780" y="416" fill="#8d7a6c" font-family="Arial, sans-serif" font-size="13">RECENT PROBLEM SETS</text>
+  <rect x="780" y="448" width="576" height="72" rx="16" fill="#2c251f"/>
+  <rect x="780" y="536" width="576" height="72" rx="16" fill="#2c251f"/>
+  <rect x="780" y="624" width="576" height="72" rx="16" fill="#2c251f"/>
+  <rect x="804" y="472" width="180" height="12" rx="6" fill="#7a6556"/>
+  <rect x="804" y="560" width="220" height="12" rx="6" fill="#7a6556"/>
+  <rect x="804" y="648" width="160" height="12" rx="6" fill="#7a6556"/>
+</svg>

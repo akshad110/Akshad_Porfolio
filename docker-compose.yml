@@ -1,0 +1,26 @@
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  web:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      MONGODB_URI: mongodb://mongo:27017/akshad-portfolio
+      NEXT_PUBLIC_SITE_URL: http://localhost:3000
+      AUTH_SECRET: ${AUTH_SECRET}
+      AUTH_URL: http://localhost:3000
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+    depends_on:
+      - mongo
+
+volumes:
+  mongo_data:

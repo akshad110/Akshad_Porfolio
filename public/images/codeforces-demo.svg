@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 860" fill="none">
+  <rect width="1440" height="860" rx="28" fill="#10141c"/>
+  <rect x="48" y="40" width="1344" height="56" rx="16" fill="#171d28"/>
+  <circle cx="80" cy="68" r="7" fill="#3b82f6"/>
+  <circle cx="106" cy="68" r="7" fill="#ef4444"/>
+  <circle cx="132" cy="68" r="7" fill="#64748b"/>
+  <text x="168" y="74" fill="#e2e8f0" font-family="Arial, sans-serif" font-size="18" font-weight="700">Codeforces</text>
+  <text x="292" y="74" fill="#64748b" font-family="Arial, sans-serif" font-size="14">Contests · Problemset · Standings</text>
+  <rect x="48" y="124" width="320" height="688" rx="24" fill="#171d28"/>
+  <rect x="80" y="164" width="64" height="64" rx="16" fill="#1d4ed8"/>
+  <text x="160" y="192" fill="#f8fafc" font-family="Arial, sans-serif" font-size="22" font-weight="700">Rounds</text>
+  <text x="160" y="218" fill="#64748b" font-family="Arial, sans-serif" font-size="14">Rated contest track</text>
+  <rect x="72" y="268" width="272" height="14" rx="7" fill="#243044"/>
+  <rect x="72" y="296" width="196" height="14" rx="7" fill="#243044"/>
+  <rect x="72" y="360" width="272" height="88" rx="18" fill="#243044"/>
+  <rect x="72" y="464" width="272" height="88" rx="18" fill="#243044"/>
+  <rect x="72" y="568" width="272" height="88" rx="18" fill="#243044"/>
+  <rect x="400" y="124" width="992" height="220" rx="24" fill="#171d28"/>
+  <text x="436" y="172" fill="#64748b" font-family="Arial, sans-serif" font-size="13">RATING GRAPH</text>
+  <path d="M452 300 C540 270 620 310 740 230 C860 150 960 260 1080 200 C1200 140 1288 168 1348 156" stroke="#3b82f6" stroke-width="4" fill="none"/>
+  <circle cx="1348" cy="156" r="6" fill="#93c5fd"/>
+  <rect x="400" y="368" width="320" height="444" rx="24" fill="#171d28"/>
+  <text x="436" y="416" fill="#64748b" font-family="Arial, sans-serif" font-size="13">DIVISION</text>
+  <text x="436" y="468" fill="#f8fafc" font-family="Arial, sans-serif" font-size="42" font-weight="700">Div. 2</text>
+  <text x="436" y="508" fill="#60a5fa" font-family="Arial, sans-serif" font-size="16">Algorithms · Implementation</text>
+  <rect x="436" y="548" width="248" height="16" rx="8" fill="#243044"/>
+  <rect x="436" y="580" width="188" height="16" rx="8" fill="#243044"/>
+  <rect x="744" y="368" width="648" height="444" rx="24" fill="#171d28"/>
+  <text x="780" y="416" fill="#64748b" font-family="Arial, sans-serif" font-size="13">RECENT ROUNDS</text>
+  <rect x="780" y="448" width="576" height="72" rx="16" fill="#243044"/>
+  <rect x="780" y="536" width="576" height="72" rx="16" fill="#243044"/>
+  <rect x="780" y="624" width="576" height="72" rx="16" fill="#243044"/>
+  <rect x="804" y="472" width="200" height="12" rx="6" fill="#475569"/>
+  <rect x="804" y="560" width="240" height="12" rx="6" fill="#475569"/>
+  <rect x="804" y="648" width="176" height="12" rx="6" fill="#475569"/>
+  <rect x="1280" y="468" width="52" height="28" rx="8" fill="#1d4ed8"/>
+  <rect x="1280" y="556" width="52" height="28" rx="8" fill="#b91c1c"/>
+  <rect x="1280" y="644" width="52" height="28" rx="8" fill="#1d4ed8"/>
+</svg>
