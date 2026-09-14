@@ -77,8 +77,8 @@ export function Navbar() {
         </nav>
 
         <div className="relative z-10 flex items-center gap-3">
-          <Button href="/contact" className="hidden px-4 py-2 text-[11px] md:inline-flex">
-            Hire Me
+          <Button href="/resume" className="hidden px-4 py-2 text-[11px] md:inline-flex">
+            My Resume
           </Button>
           <button
             type="button"
@@ -117,11 +117,11 @@ export function Navbar() {
             ))}
             <li>
               <a
-                href="/contact"
+                href="/resume"
                 onClick={() => setOpen(false)}
                 className="font-heading mt-2 inline-flex rounded-md bg-foreground px-4 py-2 text-[11px] tracking-[0.14em] text-background uppercase"
               >
-                Hire Me
+                My Resume
               </a>
             </li>
           </ul>

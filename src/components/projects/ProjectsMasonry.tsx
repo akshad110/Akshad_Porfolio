@@ -13,7 +13,6 @@ export function ProjectsMasonry({ projects }: { projects: Project[] }) {
       projects.map((project) => ({
         id: project.id,
         img: project.thumbnail || project.images[0] || "",
-        // Fallback only — real height comes from each image's natural aspect ratio.
         height: 460,
         title: project.title,
       })),
@@ -26,11 +25,7 @@ export function ProjectsMasonry({ projects }: { projects: Project[] }) {
     <>
       <MasonryGallery
         items={items}
-        animateFrom="bottom"
-        blurToFocus={false}
-        stagger={0.035}
         scaleOnHover
-        hoverScale={0.96}
         colorShiftOnHover
         onItemClick={(item) => {
           const project = byId.get(item.id);
