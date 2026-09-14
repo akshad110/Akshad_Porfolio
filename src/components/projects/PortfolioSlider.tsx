@@ -9,8 +9,16 @@ const SPEED_PX_PER_SEC = 50;
 const GAP_PX = 24;
 const DRAG_THRESHOLD = 8;
 
+function mediaSrc(src: string, width = 800) {
+  if (src.startsWith("/api/media/")) {
+    const joiner = src.includes("?") ? "&" : "?";
+    return `${src}${joiner}w=${width}`;
+  }
+  return src;
+}
+
 function screenshotSrc(url: string) {
-  return `https://s.wordpress.com/mshots/v1/${encodeURIComponent(url)}?w=1400`;
+  return `https://s.wordpress.com/mshots/v1/${encodeURIComponent(url)}?w=800`;
 }
 
 function wrapOffset(value: number, loop: number) {
@@ -187,8 +195,10 @@ function SliderCard({
   onOpen: () => void;
 }) {
   const [shotFailed, setShotFailed] = useState(false);
-  const [shotReady, setShotReady] = useState(Boolean(project.thumbnail?.startsWith("/")));
-  const preview = project.thumbnail || (project.liveLink && !shotFailed ? screenshotSrc(project.liveLink) : null);
+  const preview =
+    (project.thumbnail ? mediaSrc(project.thumbnail, 800) : null) ||
+    (project.liveLink && !shotFailed ? screenshotSrc(project.liveLink) : null);
+  const [shotReady, setShotReady] = useState(Boolean(preview));
 
   return (
     <button
@@ -205,7 +215,7 @@ function SliderCard({
           background: "linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(117,117,117,0.1) 100%)",
         }}
       >
-        <div className="relative h-full w-full overflow-hidden rounded-[10px] sm:rounded-[12px]">
+        <div className="relative h-full w-full overflow-hidden rounded-[10px] bg-[#121416] sm:rounded-[12px]">
           <ProjectSiteMock project={project} />
           {preview ? (
             // eslint-disable-next-line @next/next/no-img-element
@@ -215,12 +225,15 @@ function SliderCard({
               draggable={false}
               loading={eager ? "eager" : "lazy"}
               decoding="async"
-              onLoad={(event) => {
-                if (event.currentTarget.naturalWidth >= 400) setShotReady(true);
+              fetchPriority={eager ? "high" : "auto"}
+              sizes="(max-width: 640px) 80vw, 400px"
+              onLoad={() => setShotReady(true)}
+              onError={() => {
+                setShotFailed(true);
+                setShotReady(false);
               }}
-              onError={() => setShotFailed(true)}
               className={cn(
-                "absolute inset-0 z-[1] h-full w-full object-cover object-top transition-opacity duration-500",
+                "absolute inset-0 z-[1] h-full w-full object-cover object-top transition-opacity duration-200",
                 shotReady ? "opacity-100" : "opacity-0",
               )}
             />

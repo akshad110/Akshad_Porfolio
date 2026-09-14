@@ -41,7 +41,7 @@ export function Navbar() {
         </Link>
 
         <nav
-          className="absolute top-1/2 left-1/2 hidden -translate-x-1/2 -translate-y-1/2 items-center gap-8 lg:flex"
+          className="absolute top-1/2 left-1/2 hidden -translate-x-1/2 -translate-y-1/2 items-center gap-6 md:flex lg:gap-8"
           aria-label="Primary"
         >
           {navItems.map((item) => {
@@ -77,12 +77,12 @@ export function Navbar() {
         </nav>
 
         <div className="relative z-10 flex items-center gap-3">
-          <Button href="/contact" className="hidden px-4 py-2 text-[11px] lg:inline-flex">
+          <Button href="/contact" className="hidden px-4 py-2 text-[11px] md:inline-flex">
             Hire Me
           </Button>
           <button
             type="button"
-            className="lg:hidden"
+            className="md:hidden"
             aria-expanded={open}
             aria-controls="mobile-menu"
             onClick={() => setOpen((value) => !value)}
@@ -95,7 +95,7 @@ export function Navbar() {
       {open ? (
         <nav
           id="mobile-menu"
-          className="max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-border bg-background/95 py-6 backdrop-blur-xl lg:hidden"
+          className="max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-border bg-background/95 py-6 backdrop-blur-xl md:hidden"
           aria-label="Mobile"
         >
           <ul className="container-page flex flex-col gap-4">

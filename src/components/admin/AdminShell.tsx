@@ -157,7 +157,13 @@ export function AdminShell({
   );
 
   return (
-    <SessionProvider session={session} basePath="/api/auth" refetchOnWindowFocus={false} refetchWhenOffline={false}>
+    <SessionProvider
+      session={session}
+      basePath="/api/auth"
+      refetchInterval={0}
+      refetchOnWindowFocus={false}
+      refetchWhenOffline={false}
+    >
       {body}
     </SessionProvider>
   );

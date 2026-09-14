@@ -5,24 +5,45 @@ import { useRouter } from "next/navigation";
 import { FEATURED_LIMIT } from "@/types";
 import { saveAchievement } from "@/lib/actions/admin";
 
-export function AchievementForm({ featuredCount = 0 }: { featuredCount?: number }) {
+type AchievementDefaults = {
+  id?: string;
+  title?: string;
+  date?: string;
+  description?: string;
+  image?: string;
+  isFeatured?: boolean;
+};
+
+export function AchievementForm({
+  featuredCount = 0,
+  defaults,
+}: {
+  featuredCount?: number;
+  defaults?: AchievementDefaults;
+}) {
   const router = useRouter();
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
-  const [featured, setFeatured] = useState(false);
-  const [preview, setPreview] = useState<string>();
-  const atLimit = featuredCount >= FEATURED_LIMIT;
-  const liveCount = featured ? featuredCount + 1 : featuredCount;
+  const [featured, setFeatured] = useState(Boolean(defaults?.isFeatured));
+  const [preview, setPreview] = useState<string | undefined>(defaults?.image);
+  const editing = Boolean(defaults?.id);
+  const atLimit = featuredCount >= FEATURED_LIMIT && !defaults?.isFeatured;
+  const liveCount = featured && !defaults?.isFeatured ? featuredCount + 1 : featuredCount;
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = event.currentTarget;
     setSaving(true);
     setError("");
-    const result = await saveAchievement(new FormData(form));
+    const result = await saveAchievement(new FormData(form), defaults?.id);
     setSaving(false);
     if (result.error) {
       setError(result.error);
+      return;
+    }
+    if (editing) {
+      router.push("/admin/achievements");
+      router.refresh();
       return;
     }
     form.reset();
@@ -33,14 +54,16 @@ export function AchievementForm({ featuredCount = 0 }: { featuredCount?: number 
 
   return (
     <form onSubmit={onSubmit} className="admin-form">
+      {defaults?.image ? <input type="hidden" name="imageKeep" value={defaults.image} /> : null}
+
       <label className="grid gap-1.5">
         <span className="admin-label">Achievement name</span>
-        <input name="title" required />
+        <input name="title" required defaultValue={defaults?.title ?? ""} />
       </label>
 
       <label className="grid gap-1.5">
         <span className="admin-label">Date</span>
-        <input type="date" name="date" />
+        <input type="date" name="date" defaultValue={defaults?.date?.slice(0, 10) ?? ""} />
       </label>
 
       <label className="admin-upload">
@@ -57,14 +80,14 @@ export function AchievementForm({ featuredCount = 0 }: { featuredCount?: number 
           accept="image/png,image/jpeg,image/webp,image/gif"
           onChange={(event) => {
             const file = event.target.files?.[0];
-            setPreview(file ? URL.createObjectURL(file) : undefined);
+            setPreview(file ? URL.createObjectURL(file) : defaults?.image);
           }}
         />
       </label>
 
       <label className="grid gap-1.5">
         <span className="admin-label">Description</span>
-        <textarea name="description" required />
+        <textarea name="description" required defaultValue={defaults?.description ?? ""} />
       </label>
 
       <label className={`flex items-center gap-3 text-sm ${atLimit ? "text-[#6b7180]" : "text-[#a6abb8]"}`}>
@@ -81,7 +104,7 @@ export function AchievementForm({ featuredCount = 0 }: { featuredCount?: number 
 
       {error ? <p className="text-sm text-[#fb7185]">{error}</p> : null}
       <button type="submit" disabled={saving} className="admin-btn-primary w-full">
-        {saving ? "Saving..." : "Save"}
+        {saving ? "Saving..." : editing ? "Update" : "Save"}
       </button>
     </form>
   );

@@ -39,3 +39,11 @@ export function siteUrl(path = "") {
 export function isExternalUrl(value?: string) {
   return Boolean(value && /^https?:\/\//i.test(value));
 }
+
+/** Resize Mongo-backed media on the fly for faster UI loads. */
+export function optimizedMediaUrl(src?: string, width = 800) {
+  if (!src) return src;
+  if (!src.startsWith("/api/media/")) return src;
+  const joiner = src.includes("?") ? "&" : "?";
+  return `${src}${joiner}w=${width}`;
+}

@@ -17,6 +17,7 @@ export const site = {
   portrait: "/images/akshad-portrait.png",
   heroVideo: "/videos/hero-intro.mp4?v=20260912004217",
   ogImage: "/images/akshad-portrait.png",
+  resume: "/docs/akshad-vengurlekar-resume.pdf",
 } as const;
 
 export const heroCopy = {

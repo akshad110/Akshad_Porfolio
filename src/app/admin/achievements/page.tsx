@@ -6,6 +6,7 @@ import { DeleteButton } from "@/components/admin/DeleteButton";
 import { ManageChrome } from "@/components/admin/ManageChrome";
 import { StatusPill } from "@/components/admin/StatusPill";
 import { FEATURED_LIMIT } from "@/types";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
@@ -37,6 +38,9 @@ export default async function AdminAchievementsPage() {
                 />
               </div>
               <div className="admin-record-actions">
+                <Link href={`/admin/achievements/${String(item._id)}`} className="admin-btn-ghost h-8 px-3 text-xs">
+                  Edit
+                </Link>
                 <DeleteButton action={deleteAchievement.bind(null, String(item._id))} />
               </div>
             </article>

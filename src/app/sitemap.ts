@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const projects = await getPublishedProjects();
-  const staticRoutes = ["", "/about", "/projects", "/services", "/contact"];
+  const staticRoutes = ["", "/about", "/projects", "/services", "/contact", "/resume"];
 
   return [
     ...staticRoutes.map((path) => ({

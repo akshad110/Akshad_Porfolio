@@ -1,8 +1,29 @@
 import { connectDb } from "@/lib/db/connect";
 import { MediaModel } from "@/models/Media";
+import sharp from "sharp";
 
 const ALLOWED = new Set(["image/jpeg", "image/png", "image/webp", "image/gif", "image/svg+xml"]);
 const MAX_BYTES = 6 * 1024 * 1024;
+
+async function optimizeImage(file: File) {
+  const input = Buffer.from(await file.arrayBuffer());
+  if (file.type === "image/svg+xml" || file.type === "image/gif") {
+    return { buffer: input, contentType: file.type };
+  }
+
+  const buffer = await sharp(input)
+    .rotate()
+    .resize({
+      width: 1400,
+      height: 1400,
+      fit: "inside",
+      withoutEnlargement: true,
+    })
+    .webp({ quality: 72, effort: 4 })
+    .toBuffer();
+
+  return { buffer, contentType: "image/webp" };
+}
 
 async function saveToMongo(file: File, folder: string) {
   if (!ALLOWED.has(file.type)) {
@@ -13,18 +34,17 @@ async function saveToMongo(file: File, folder: string) {
   }
 
   await connectDb();
-  const buffer = Buffer.from(await file.arrayBuffer());
+  const { buffer, contentType } = await optimizeImage(file);
   const filename = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "").slice(0, 40) || "image"}`;
 
   const doc = await MediaModel.create({
     folder,
     filename,
-    contentType: file.type,
+    contentType,
     size: buffer.byteLength,
     data: buffer,
   });
 
-  // Persist in Mongo so Render deploys never lose admin uploads.
   return `/api/media/${doc._id}`;
 }
 

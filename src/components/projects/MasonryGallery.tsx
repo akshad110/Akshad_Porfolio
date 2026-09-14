@@ -266,7 +266,7 @@ export function MasonryGallery({
         >
           <div className="relative h-full w-full bg-[#0e0f0f]">
             <img
-              src={item.img}
+              src={item.img.startsWith("/api/media/") ? `${item.img}${item.img.includes("?") ? "&" : "?"}w=700` : item.img}
               alt={item.title || ""}
               className={cn(
                 "h-full w-full transition-transform duration-500 group-hover:scale-[1.02]",

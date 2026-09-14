@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { ExternalLink, Github, X } from "lucide-react";
 import type { Project } from "@/types";
-import { cn, formatProjectRange } from "@/lib/utils";
+import { cn, formatProjectRange, optimizedMediaUrl } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import { lockPageScroll, unlockPageScroll } from "@/lib/page-scroll";
 
@@ -108,7 +108,13 @@ export function ProjectModal({
                     )}
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={src} alt={alt} className={cn("h-[88px] w-full object-cover sm:h-[110px]", crop)} />
+                    <img
+                      src={optimizedMediaUrl(src, 640) ?? src}
+                      alt={alt}
+                      loading="lazy"
+                      decoding="async"
+                      className={cn("h-[88px] w-full object-cover sm:h-[110px]", crop)}
+                    />
                   </button>
                 );
               })}
@@ -178,7 +184,7 @@ export function ProjectModal({
           </button>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={expanded.src}
+            src={optimizedMediaUrl(expanded.src, 1400) ?? expanded.src}
             alt={expanded.alt}
             onClick={(event) => event.stopPropagation()}
             className="max-h-[82vh] max-w-[90vw] rounded-2xl object-contain shadow-2xl"

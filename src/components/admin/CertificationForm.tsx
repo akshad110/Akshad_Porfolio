@@ -5,22 +5,42 @@ import { useRouter } from "next/navigation";
 import { FEATURED_LIMIT } from "@/types";
 import { saveCertification } from "@/lib/actions/admin";
 
-export function CertificationForm({ featuredCount = 0 }: { featuredCount?: number }) {
+type CertificationDefaults = {
+  id?: string;
+  title?: string;
+  description?: string;
+  image?: string;
+  isFeatured?: boolean;
+};
+
+export function CertificationForm({
+  featuredCount = 0,
+  defaults,
+}: {
+  featuredCount?: number;
+  defaults?: CertificationDefaults;
+}) {
   const router = useRouter();
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
-  const [preview, setPreview] = useState<string>();
-  const atLimit = featuredCount >= FEATURED_LIMIT;
+  const [preview, setPreview] = useState<string | undefined>(defaults?.image);
+  const editing = Boolean(defaults?.id);
+  const atLimit = featuredCount >= FEATURED_LIMIT && !defaults?.isFeatured;
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = event.currentTarget;
     setSaving(true);
     setError("");
-    const result = await saveCertification(new FormData(form));
+    const result = await saveCertification(new FormData(form), defaults?.id);
     setSaving(false);
     if (result.error) {
       setError(result.error);
+      return;
+    }
+    if (editing) {
+      router.push("/admin/certifications");
+      router.refresh();
       return;
     }
     form.reset();
@@ -30,14 +50,16 @@ export function CertificationForm({ featuredCount = 0 }: { featuredCount?: numbe
 
   return (
     <form onSubmit={onSubmit} className="admin-form">
+      {defaults?.image ? <input type="hidden" name="imageKeep" value={defaults.image} /> : null}
+
       <label className="grid gap-1.5">
         <span className="admin-label">Title</span>
-        <input name="title" required />
+        <input name="title" required defaultValue={defaults?.title ?? ""} />
       </label>
 
       <label className="grid gap-1.5">
         <span className="admin-label">Description</span>
-        <textarea name="description" required />
+        <textarea name="description" required defaultValue={defaults?.description ?? ""} />
       </label>
 
       <label className="admin-upload">
@@ -51,11 +73,11 @@ export function CertificationForm({ featuredCount = 0 }: { featuredCount?: numbe
         <input
           type="file"
           name="image"
-          required
+          required={!defaults?.image}
           accept="image/png,image/jpeg,image/webp,image/gif"
           onChange={(event) => {
             const file = event.target.files?.[0];
-            setPreview(file ? URL.createObjectURL(file) : undefined);
+            setPreview(file ? URL.createObjectURL(file) : defaults?.image);
           }}
         />
       </label>
@@ -66,8 +88,8 @@ export function CertificationForm({ featuredCount = 0 }: { featuredCount?: numbe
       </p>
 
       {error ? <p className="text-sm text-[#fb7185]">{error}</p> : null}
-      <button type="submit" disabled={saving || atLimit} className="admin-btn-primary w-full">
-        {saving ? "Saving..." : "Save"}
+      <button type="submit" disabled={saving || (atLimit && !editing)} className="admin-btn-primary w-full">
+        {saving ? "Saving..." : editing ? "Update" : "Save"}
       </button>
     </form>
   );
