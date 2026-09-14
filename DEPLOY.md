@@ -28,8 +28,8 @@ In Render → your service → **Environment**, set:
 | Key | Value |
 |---|---|
 | `MONGODB_URI` | Your MongoDB Atlas connection string |
-| `NEXT_PUBLIC_SITE_URL` | `https://YOUR-SERVICE.onrender.com` |
-| `AUTH_URL` | Same as `NEXT_PUBLIC_SITE_URL` |
+| `NEXT_PUBLIC_SITE_URL` | `https://akshadvengurlekar.onrender.com` (your real URL) |
+| `AUTH_URL` | **Same as** `NEXT_PUBLIC_SITE_URL` (required — prevents logout → `0.0.0.0`) |
 | `AUTH_TRUST_HOST` | `true` |
 | `AUTH_SECRET` | Long random string (or use Render Generate) |
 | `ADMIN_EMAIL` | Your admin login email |
@@ -38,6 +38,7 @@ In Render → your service → **Environment**, set:
 | `CONTACT_TO_EMAIL` | `jagrutivengurlekar@gmail.com` |
 | `RESEND_FROM_EMAIL` | Optional verified sender; otherwise Resend default is used |
 
+**Images:** new admin uploads are stored in **MongoDB** (`/api/media/...`) so they survive redeploys. Old `/uploads/...` files on free Render are gone — open each project/achievement/cert in admin and **re-upload** the images once.
 ## 4. MongoDB Atlas
 
 1. Allow Render IPs (or `0.0.0.0/0` for Atlas Network Access if you accept that risk)

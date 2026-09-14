@@ -15,6 +15,9 @@ const nextConfig: NextConfig = {
     ],
   },
   serverExternalPackages: ["mongoose"],
+  async rewrites() {
+    return [{ source: "/uploads/:path*", destination: "/api/legacy-uploads/:path*" }];
+  },
 };
 
 export default nextConfig;

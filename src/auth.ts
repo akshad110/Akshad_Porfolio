@@ -3,6 +3,11 @@ import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { authConfig } from "@/auth.config";
 
+// Prefer the public site URL over Docker's bind host (0.0.0.0:10000).
+if (!process.env.AUTH_URL && process.env.NEXT_PUBLIC_SITE_URL) {
+  process.env.AUTH_URL = process.env.NEXT_PUBLIC_SITE_URL;
+}
+
 function readCredential(value: unknown) {
   if (typeof value === "string") return value;
   if (Array.isArray(value) && typeof value[0] === "string") return value[0];

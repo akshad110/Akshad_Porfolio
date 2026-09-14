@@ -37,6 +37,13 @@ export function AdminShell({
   const searchRef = useRef<HTMLInputElement>(null);
   const isLogin = pathname.startsWith("/admin/login");
 
+  function handleSignOut() {
+    void signOut({ redirect: false }).then(() => {
+      // Avoid NextAuth absolute URL built from Docker HOSTNAME (0.0.0.0:10000).
+      window.location.assign("/admin/login");
+    });
+  }
+
   useEffect(() => {
     function onKey(event: KeyboardEvent) {
       if (event.key === "/" && !(event.target instanceof HTMLInputElement) && !(event.target instanceof HTMLTextAreaElement)) {
@@ -104,7 +111,7 @@ export function AdminShell({
             <button
               type="button"
               className="admin-icon-btn hidden md:grid"
-              onClick={() => signOut({ callbackUrl: "/admin/login" })}
+              onClick={handleSignOut}
               aria-label="Sign out"
             >
               <LogOut className="size-4" />
@@ -136,7 +143,7 @@ export function AdminShell({
               ))}
               <button
                 type="button"
-                onClick={() => signOut({ callbackUrl: "/admin/login" })}
+                onClick={handleSignOut}
                 className="admin-nav-pill mt-4 text-left"
               >
                 Sign out
