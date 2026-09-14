@@ -1,4 +1,4 @@
-import { tryConnectDb } from "@/lib/db/connect";
+import { tryConnectDb, hasMongoUri } from "@/lib/db/connect";
 import { ProjectModel } from "@/models/Project";
 import { SkillModel } from "@/models/Skill";
 import { AchievementModel } from "@/models/Achievement";
@@ -93,10 +93,25 @@ function offline<T>(items: T[]): T[] {
   return items;
 }
 
+async function connectWithRetry(attempts = 3) {
+  for (let i = 0; i < attempts; i++) {
+    const db = await tryConnectDb();
+    if (db) return db;
+    await new Promise((resolve) => setTimeout(resolve, 400 * (i + 1)));
+  }
+  return null;
+}
+
 export async function getPublishedProjects(): Promise<Project[]> {
-  const db = await tryConnectDb();
-  if (!db) return offline(fallbackProjects.filter((item) => item.status === "PUBLISHED"));
-  // Lean projection keeps the list payload light; modal still gets these fields.
+  // Production has Mongo configured — never substitute seed data (seed is only 3 projects
+  // and caused intermittent 3-vs-8 flashes on Render cold starts).
+  if (!hasMongoUri()) {
+    return offline(fallbackProjects.filter((item) => item.status === "PUBLISHED"));
+  }
+
+  const db = await connectWithRetry(3);
+  if (!db) return [];
+
   const docs = await ProjectModel.find({ status: "PUBLISHED" })
     .select(
       "title slug category shortDescription description skills liveLink githubLink githubAccess thumbnail images video startDate endDate status isFeatured featuredOrder createdAt updatedAt",

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import gsap from "gsap";
 import { cn, optimizedMediaUrl } from "@/lib/utils";
 
@@ -36,25 +36,30 @@ export type MasonryGalleryProps = {
   onItemClick?: (item: MasonryItem) => void;
 };
 
-const useMedia = (queries: string[], values: number[], defaultValue: number): number => {
-  const get = () => {
-    if (typeof window === "undefined") return defaultValue;
-    const match = queries.findIndex((query) => window.matchMedia(query).matches);
-    return values[match] ?? defaultValue;
-  };
+const COLUMN_QUERIES = [
+  "(min-width: 1500px)",
+  "(min-width: 1000px)",
+  "(min-width: 768px)",
+  "(min-width: 640px)",
+] as const;
+const COLUMN_VALUES = [5, 4, 3, 2] as const;
+const MAX_CARD_WIDTH = 280;
 
-  const [value, setValue] = useState(defaultValue);
+function readColumns() {
+  const match = COLUMN_QUERIES.findIndex((query) => window.matchMedia(query).matches);
+  return COLUMN_VALUES[match] ?? 1;
+}
 
-  useEffect(() => {
-    const handler = () => setValue(get());
-    handler();
-    const media = queries.map((query) => window.matchMedia(query));
-    media.forEach((entry) => entry.addEventListener("change", handler));
-    return () => media.forEach((entry) => entry.removeEventListener("change", handler));
-  }, [queries, values, defaultValue]);
+function subscribeColumns(onStoreChange: () => void) {
+  const media = COLUMN_QUERIES.map((query) => window.matchMedia(query));
+  media.forEach((entry) => entry.addEventListener("change", onStoreChange));
+  return () => media.forEach((entry) => entry.removeEventListener("change", onStoreChange));
+}
 
-  return value;
-};
+function useColumnCount() {
+  // Sync with viewport immediately — old default of 1 made cards full-width/huge on first paint.
+  return useSyncExternalStore(subscribeColumns, readColumns, () => 3);
+}
 
 function thumbSrc(src: string) {
   return optimizedMediaUrl(src, 700) ?? src;
@@ -94,11 +99,8 @@ export function MasonryGallery({
   itemClassName,
   onItemClick,
 }: MasonryGalleryProps) {
-  const columns = useMedia(
-    ["(min-width: 1500px)", "(min-width: 1000px)", "(min-width: 768px)", "(min-width: 640px)"],
-    [5, 4, 3, 2],
-    1,
-  );
+  const viewportColumns = useColumnCount();
+  const columns = Math.max(1, Math.min(viewportColumns, items.length || 1));
 
   const containerRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(0);
@@ -110,13 +112,13 @@ export function MasonryGallery({
   useLayoutEffect(() => {
     const el = containerRef.current;
     if (!el) return;
+    const measure = () => setWidth(el.getBoundingClientRect().width);
+    measure();
     const ro = new ResizeObserver(([entry]) => setWidth(entry.contentRect.width));
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
 
-  // Seed fallbacks immediately, then refine from the same thumb URL the <img> uses
-  // so the browser cache is shared (no full-size double-fetch).
   useEffect(() => {
     let cancelled = false;
     setRatios((prev) => {
@@ -174,16 +176,20 @@ export function MasonryGallery({
   const { grid, containerHeight } = useMemo(() => {
     if (!width) return { grid: [] as GridItem[], containerHeight: 0 };
 
-    const colHeights = new Array(columns).fill(0);
     const gap = width < 640 ? 14 : 24;
-    const columnWidth = (width - (columns - 1) * gap) / columns;
-    // Keep tiles close to real screenshot proportions so cover crops less.
+    const fluidWidth = (width - (columns - 1) * gap) / columns;
+    // Cap card size so a temporary low count never stretches tiles full-bleed.
+    const columnWidth = Math.min(MAX_CARD_WIDTH, fluidWidth);
+    const usedWidth = columns * columnWidth + (columns - 1) * gap;
+    const offsetX = Math.max(0, (width - usedWidth) / 2);
+
+    const colHeights = new Array(columns).fill(0);
     const minRatio = 0.56;
     const maxRatio = width < 640 ? 1.25 : 1.45;
 
     const gridItems = items.map((child) => {
       const col = colHeights.indexOf(Math.min(...colHeights));
-      const x = col * (columnWidth + gap);
+      const x = offsetX + col * (columnWidth + gap);
       const natural = ratios[child.id] ?? fallbackRatio(child);
       const ratio = Math.min(Math.max(natural, minRatio), maxRatio);
       const height = columnWidth * ratio;

@@ -5,8 +5,8 @@ import { createMetadata } from "@/lib/metadata";
 import { Button } from "@/components/ui/Button";
 import { optimizedMediaUrl } from "@/lib/utils";
 
-// Cache the page briefly; admin saves still call revalidatePath("/projects").
-export const revalidate = 60;
+// Always read live admin data — ISR was caching seed fallback (3 projects) on cold starts.
+export const dynamic = "force-dynamic";
 
 export const metadata = createMetadata({
   title: "My Projects",
