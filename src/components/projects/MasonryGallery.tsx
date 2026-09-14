@@ -18,7 +18,6 @@ type GridItem = MasonryItem & {
   w: number;
   h: number;
   ratio: number;
-  capped: boolean;
   displaySrc: string;
 };
 
@@ -178,14 +177,14 @@ export function MasonryGallery({
     const colHeights = new Array(columns).fill(0);
     const gap = width < 640 ? 14 : 24;
     const columnWidth = (width - (columns - 1) * gap) / columns;
-    const minRatio = 0.72;
-    const maxRatio = width < 640 ? 1.15 : 1.35;
+    // Keep tiles close to real screenshot proportions so cover crops less.
+    const minRatio = 0.56;
+    const maxRatio = width < 640 ? 1.25 : 1.45;
 
     const gridItems = items.map((child) => {
       const col = colHeights.indexOf(Math.min(...colHeights));
       const x = col * (columnWidth + gap);
       const natural = ratios[child.id] ?? fallbackRatio(child);
-      const capped = natural > maxRatio || natural < minRatio;
       const ratio = Math.min(Math.max(natural, minRatio), maxRatio);
       const height = columnWidth * ratio;
       const y = colHeights[col];
@@ -197,7 +196,6 @@ export function MasonryGallery({
         w: columnWidth,
         h: height,
         ratio: natural,
-        capped,
         displaySrc: thumbSrc(child.img),
       };
     });
@@ -288,14 +286,11 @@ export function MasonryGallery({
           onMouseEnter={(event) => handleMouseEnter(event.currentTarget)}
           onMouseLeave={(event) => handleMouseLeave(event.currentTarget)}
         >
-          <div className="relative h-full w-full bg-[#0e0f0f]">
+          <div className="relative h-full w-full overflow-hidden bg-[#0e0f0f]">
             <img
               src={item.displaySrc}
               alt={item.title || ""}
-              className={cn(
-                "h-full w-full transition-transform duration-500 group-hover:scale-[1.02]",
-                item.capped ? "object-contain object-center" : "object-cover object-top",
-              )}
+              className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-[1.02]"
               loading={index < 4 ? "eager" : "lazy"}
               fetchPriority={index < 2 ? "high" : "auto"}
               decoding="async"
