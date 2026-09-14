@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { FEATURED_LIMIT } from "@/types";
 
 type CertificationDefaults = {
@@ -19,7 +18,6 @@ export function CertificationForm({
   featuredCount?: number;
   defaults?: CertificationDefaults;
 }) {
-  const router = useRouter();
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   const [preview, setPreview] = useState<string | undefined>(defaults?.image);
@@ -47,14 +45,8 @@ export function CertificationForm({
         return;
       }
 
-      if (editing) {
-        router.push("/admin/certifications");
-        router.refresh();
-        return;
-      }
-      form.reset();
-      setPreview(undefined);
-      router.refresh();
+      // Full navigation avoids noisy failed RSC refresh/prefetch on Render.
+      window.location.assign("/admin/certifications");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Network error while saving.");
     } finally {

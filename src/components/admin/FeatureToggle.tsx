@@ -43,8 +43,7 @@ function FeaturedSwitch({
               return;
             }
             router.refresh();
-          } catch (error) {
-            console.error(error);
+          } catch {
             event.target.checked = !next;
             window.alert("Could not update. Check your connection and try again.");
           } finally {

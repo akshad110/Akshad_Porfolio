@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { FEATURED_LIMIT } from "@/types";
 
 type AchievementDefaults = {
@@ -20,7 +19,6 @@ export function AchievementForm({
   featuredCount?: number;
   defaults?: AchievementDefaults;
 }) {
-  const router = useRouter();
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   const [featured, setFeatured] = useState(Boolean(defaults?.isFeatured));
@@ -50,15 +48,8 @@ export function AchievementForm({
         return;
       }
 
-      if (editing) {
-        router.push("/admin/achievements");
-        router.refresh();
-        return;
-      }
-      form.reset();
-      setFeatured(false);
-      setPreview(undefined);
-      router.refresh();
+      // Full navigation avoids noisy failed RSC refresh/prefetch on Render.
+      window.location.assign("/admin/achievements");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Network error while saving.");
     } finally {

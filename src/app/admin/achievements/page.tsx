@@ -38,6 +38,7 @@ export default async function AdminAchievementsPage() {
                 />
                 <Link
                   href={`/admin/achievements/${String(item._id)}`}
+                  prefetch={false}
                   className="admin-btn-ghost h-8 px-3 text-xs font-semibold text-[#22b3d7]"
                 >
                   Edit

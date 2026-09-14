@@ -17,6 +17,10 @@ const hosts = siteHosts();
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  compiler: {
+    // Strip console.* from production browser bundles.
+    removeConsole: process.env.NODE_ENV === "production",
+  },
   experimental: {
     serverActions: {
       bodySizeLimit: "20mb",

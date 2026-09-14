@@ -40,6 +40,7 @@ export default async function AdminCertificationsPage() {
                 />
                 <Link
                   href={`/admin/certifications/${String(item._id)}`}
+                  prefetch={false}
                   className="admin-btn-ghost h-8 px-3 text-xs font-semibold text-[#22b3d7]"
                 >
                   Edit
