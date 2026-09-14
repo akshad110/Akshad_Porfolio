@@ -27,7 +27,7 @@ export type MasonryGalleryProps = {
 };
 
 function thumbSrc(src: string) {
-  return optimizedMediaUrl(src, 700) ?? src;
+  return optimizedMediaUrl(src, 960) ?? src;
 }
 
 function subscribeCoarse(onChange: () => void) {
@@ -58,7 +58,7 @@ export function MasonryGallery({
     <div
       data-grid-ignore
       className={cn(
-        "grid w-full grid-cols-1 gap-3.5 sm:grid-cols-2 sm:gap-5 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5",
+        "grid w-full grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3",
         className,
       )}
     >
@@ -67,7 +67,7 @@ export function MasonryGallery({
           key={item.id}
           type="button"
           className={cn(
-            "group relative aspect-[4/5] w-full overflow-hidden rounded-xl border border-border bg-background-secondary text-left",
+            "group relative aspect-[16/10] w-full overflow-hidden rounded-xl border border-border bg-background-secondary text-left",
             !coarse && scaleOnHover && "transition-transform duration-300 hover:scale-[0.98]",
             itemClassName,
           )}

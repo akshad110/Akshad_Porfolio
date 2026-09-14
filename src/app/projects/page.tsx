@@ -18,7 +18,7 @@ export default async function ProjectsPage() {
   const projects = await getPublishedProjects();
   const preloadThumbs = projects
     .slice(0, 4)
-    .map((project) => optimizedMediaUrl(project.thumbnail || project.images[0], 700))
+    .map((project) => optimizedMediaUrl(project.thumbnail || project.images[0], 960))
     .filter((src): src is string => Boolean(src));
 
   return (

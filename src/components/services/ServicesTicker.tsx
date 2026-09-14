@@ -19,165 +19,198 @@ export function ServicesTicker() {
     const track = trackRef.current;
     if (!pin || !track) return;
 
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduced) return;
+    const mq = window.matchMedia("(min-width: 768px)");
+    let ctx: gsap.Context | null = null;
+    let ro: ResizeObserver | null = null;
 
-    const endWord = () => track.querySelector<HTMLElement>("[data-ticker-end]");
-    const distance = () => {
-      const word = endWord();
-      const rightPad = Math.min(72, window.innerWidth * 0.06);
-      if (!word) return Math.max(0, track.scrollWidth - window.innerWidth + rightPad);
-      return Math.max(0, word.offsetLeft + word.offsetWidth - window.innerWidth + rightPad);
+    const teardown = () => {
+      ro?.disconnect();
+      ro = null;
+      ctx?.revert();
+      ctx = null;
+      gsap.set(track, { clearProps: "transform,x" });
     };
 
-    const ctx = gsap.context(() => {
-      const scrollTween = gsap.to(track, {
-        x: () => -distance(),
-        ease: "none",
-        scrollTrigger: {
-          trigger: pin,
-          start: "top top",
-          end: () => `+=${distance()}`,
-          pin: true,
-          pinSpacing: true,
-          pinType: "transform",
-          scrub: true,
-          anticipatePin: 1,
-          fastScrollEnd: true,
-          invalidateOnRefresh: true,
-          onUpdate: (self) => {
-            if (self.progress < 0.96) return;
-            gsap.set("[data-wave-char], [data-wave-mark]", {
+    const setup = () => {
+      teardown();
+      // Mobile/small: no GSAP horizontal pin — plain wrapping text handles that layout.
+      if (!mq.matches) return;
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+      const endWord = () => track.querySelector<HTMLElement>("[data-ticker-end]");
+      const distance = () => {
+        const word = endWord();
+        const rightPad = Math.min(72, window.innerWidth * 0.06);
+        if (!word) return Math.max(0, track.scrollWidth - window.innerWidth + rightPad);
+        return Math.max(0, word.offsetLeft + word.offsetWidth - window.innerWidth + rightPad);
+      };
+
+      ctx = gsap.context(() => {
+        const scrollTween = gsap.to(track, {
+          x: () => -distance(),
+          ease: "none",
+          scrollTrigger: {
+            trigger: pin,
+            start: "top top",
+            end: () => `+=${distance()}`,
+            pin: true,
+            pinSpacing: true,
+            pinType: "transform",
+            scrub: true,
+            anticipatePin: 1,
+            fastScrollEnd: true,
+            invalidateOnRefresh: true,
+            onUpdate: (self) => {
+              if (self.progress < 0.96) return;
+              gsap.set("[data-wave-char], [data-wave-mark]", {
+                yPercent: 0,
+                rotate: 0,
+                opacity: 1,
+                scale: 1,
+              });
+            },
+          },
+        });
+
+        gsap.utils.toArray<HTMLElement>("[data-wave-char]").forEach((char, index) => {
+          const wave = Math.sin(index * 0.72);
+          gsap.fromTo(
+            char,
+            {
+              yPercent: 120 + wave * 55,
+              rotate: wave * 14,
+              opacity: 0,
+            },
+            {
               yPercent: 0,
               rotate: 0,
               opacity: 1,
+              ease: "none",
+              scrollTrigger: {
+                trigger: char,
+                containerAnimation: scrollTween,
+                start: "left 100%",
+                end: "left 84%",
+                scrub: true,
+              },
+            },
+          );
+        });
+
+        gsap.utils.toArray<HTMLElement>("[data-wave-mark]").forEach((mark, index) => {
+          const wave = Math.sin(index * 1.1 + 0.4);
+          gsap.fromTo(
+            mark,
+            {
+              yPercent: 50 + wave * 30,
+              scale: 0.72,
+              rotate: wave * 18,
+              opacity: 0,
+            },
+            {
+              yPercent: 0,
               scale: 1,
-            });
-          },
-        },
-      });
-
-      gsap.utils.toArray<HTMLElement>("[data-wave-char]").forEach((char, index) => {
-        const wave = Math.sin(index * 0.72);
-        gsap.fromTo(
-          char,
-          {
-            yPercent: 120 + wave * 55,
-            rotate: wave * 14,
-            opacity: 0,
-          },
-          {
-            yPercent: 0,
-            rotate: 0,
-            opacity: 1,
-            ease: "none",
-            scrollTrigger: {
-              trigger: char,
-              containerAnimation: scrollTween,
-              start: "left 100%",
-              end: "left 84%",
-              scrub: true,
+              rotate: 0,
+              opacity: 1,
+              ease: "none",
+              scrollTrigger: {
+                trigger: mark,
+                containerAnimation: scrollTween,
+                start: "left 100%",
+                end: "left 84%",
+                scrub: true,
+              },
             },
-          },
-        );
-      });
+          );
+        });
+      }, pin);
 
-      gsap.utils.toArray<HTMLElement>("[data-wave-mark]").forEach((mark, index) => {
-        const wave = Math.sin(index * 1.1 + 0.4);
-        gsap.fromTo(
-          mark,
-          {
-            yPercent: 50 + wave * 30,
-            scale: 0.72,
-            rotate: wave * 18,
-            opacity: 0,
-          },
-          {
-            yPercent: 0,
-            scale: 1,
-            rotate: 0,
-            opacity: 1,
-            ease: "none",
-            scrollTrigger: {
-              trigger: mark,
-              containerAnimation: scrollTween,
-              start: "left 100%",
-              end: "left 84%",
-              scrub: true,
-            },
-          },
-        );
-      });
-    }, pin);
+      ro = new ResizeObserver(() => ScrollTrigger.refresh());
+      ro.observe(track);
+      requestAnimationFrame(() => ScrollTrigger.refresh());
+    };
 
-    const refresh = () => ScrollTrigger.refresh();
-    const ro = new ResizeObserver(refresh);
-    ro.observe(track);
-    requestAnimationFrame(refresh);
-
+    setup();
+    mq.addEventListener("change", setup);
     return () => {
-      ro.disconnect();
-      ctx.revert();
+      mq.removeEventListener("change", setup);
+      teardown();
     };
   }, []);
 
   return (
-    <section
-      ref={pinRef}
-      data-grid-ignore
-      className="relative flex h-[32dvh] items-center overflow-hidden bg-background sm:h-[42dvh] md:h-[100dvh]"
-    >
-      <p className="sr-only">{SENTENCE}</p>
-      <div
-        ref={trackRef}
-        className="font-heading flex w-max items-center whitespace-nowrap py-[0.12em] pl-[6vw] pr-[6vw] text-[clamp(1.85rem,9vw,9.5rem)] leading-[1.15] font-semibold tracking-[-0.04em] will-change-transform md:py-[0.2em] md:pl-[12vw]"
-        aria-hidden
+    <>
+      {/* Mobile / small: centered wrapping copy, normal vertical scroll */}
+      <section
+        data-grid-ignore
+        className="relative flex min-h-[42dvh] items-center justify-center bg-background px-5 py-14 sm:px-8 sm:py-16 md:hidden"
       >
-        <Word gap="wide">In every</Word>
-        <Word>project,</Word>
+        <p className="font-heading mx-auto max-w-md text-center text-[clamp(1.35rem,6.2vw,1.85rem)] leading-[1.35] font-semibold tracking-[-0.03em] text-balance">
+          In every project,{" "}
+          <span className="text-accent-bright">discover</span> the problem, design the interface,{" "}
+          <span className="text-accent-bright">build</span> the product, and{" "}
+          <span className="text-accent-bright">ship</span> experiences that last.
+        </p>
+      </section>
 
-        <MarkCircle>
-          <Search className="h-[46%] w-[46%]" strokeWidth={2.4} />
-        </MarkCircle>
-        <Word accent gap="tight">
-          discover
-        </Word>
-        <MarkCircle>
-          <Lightbulb className="h-[46%] w-[46%]" strokeWidth={2.4} />
-        </MarkCircle>
-        <Word gap="wide">the problem,</Word>
-        <MarkCard>
-          <ArrowRight className="h-[48%] w-[48%]" strokeWidth={2.2} />
-        </MarkCard>
+      {/* Desktop: horizontal GSAP scroll ticker */}
+      <section
+        ref={pinRef}
+        data-grid-ignore
+        className="relative hidden h-[100dvh] items-center overflow-hidden bg-background md:flex"
+      >
+        <p className="sr-only">{SENTENCE}</p>
+        <div
+          ref={trackRef}
+          className="font-heading flex w-max items-center whitespace-nowrap py-[0.2em] pl-[12vw] pr-[6vw] text-[clamp(1.85rem,9vw,9.5rem)] leading-[1.15] font-semibold tracking-[-0.04em] will-change-transform"
+          aria-hidden
+        >
+          <Word gap="wide">In every</Word>
+          <Word>project,</Word>
 
-        <Word gap="tight">design</Word>
-        <MarkCard>
-          <Layers className="h-[48%] w-[48%]" strokeWidth={2.2} />
-        </MarkCard>
-        <Word gap="wide">the interface,</Word>
+          <MarkCircle>
+            <Search className="h-[46%] w-[46%]" strokeWidth={2.4} />
+          </MarkCircle>
+          <Word accent gap="tight">
+            discover
+          </Word>
+          <MarkCircle>
+            <Lightbulb className="h-[46%] w-[46%]" strokeWidth={2.4} />
+          </MarkCircle>
+          <Word gap="wide">the problem,</Word>
+          <MarkCard>
+            <ArrowRight className="h-[48%] w-[48%]" strokeWidth={2.2} />
+          </MarkCard>
 
-        <MarkCircle>
-          <Code2 className="h-[46%] w-[46%]" strokeWidth={2.4} />
-        </MarkCircle>
-        <Word accent gap="tight">
-          build
-        </Word>
-        <Word gap="wide">the product,</Word>
+          <Word gap="tight">design</Word>
+          <MarkCard>
+            <Layers className="h-[48%] w-[48%]" strokeWidth={2.2} />
+          </MarkCard>
+          <Word gap="wide">the interface,</Word>
 
-        <Word gap="snug">and</Word>
-        <MarkCircle>
-          <Box className="h-[46%] w-[46%]" strokeWidth={2.4} />
-        </MarkCircle>
-        <Word accent gap="tight">
-          ship
-        </Word>
-        <MarkCard>
-          <Sparkles className="h-[46%] w-[46%]" strokeWidth={2.2} />
-        </MarkCard>
-        <Word gap="snug">experiences that</Word>
-        <Word endMark>last.</Word>
-      </div>
-    </section>
+          <MarkCircle>
+            <Code2 className="h-[46%] w-[46%]" strokeWidth={2.4} />
+          </MarkCircle>
+          <Word accent gap="tight">
+            build
+          </Word>
+          <Word gap="wide">the product,</Word>
+
+          <Word gap="snug">and</Word>
+          <MarkCircle>
+            <Box className="h-[46%] w-[46%]" strokeWidth={2.4} />
+          </MarkCircle>
+          <Word accent gap="tight">
+            ship
+          </Word>
+          <MarkCard>
+            <Sparkles className="h-[46%] w-[46%]" strokeWidth={2.2} />
+          </MarkCard>
+          <Word gap="snug">experiences that</Word>
+          <Word endMark>last.</Word>
+        </div>
+      </section>
+    </>
   );
 }
 
