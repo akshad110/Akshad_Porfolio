@@ -70,6 +70,7 @@ Health check path: `/`
 
 - Free Render instances **spin down** after idle time; the first request can be slow (~30–60s). Keep the tab open once for warm-up.
 - In MongoDB Atlas → Network Access, allow `0.0.0.0/0` (or Render outbound IPs) or public pages will fall back to seed data.
-- Admin image uploads write to `public/uploads`. On Render free Docker they are **ephemeral** — add a persistent disk mounted at `/app/public/uploads`, or re-upload after redeploy / use external image URLs.
+- Admin image uploads write to MongoDB (`/api/media/...`) so they survive redeploys.
+- **AUTH_URL and NEXT_PUBLIC_SITE_URL must both be exactly** `https://akshadvengurlekar.onrender.com` (no trailing slash, no `0.0.0.0`). Wrong values cause **403** and `An unexpected response was received from the server` on admin save/feature toggles.
 - Keep `.env` out of git (already gitignored).
 - Rotate any API keys that were shared in chat.

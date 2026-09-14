@@ -27,10 +27,18 @@ function FeaturedSwitch({
         checked={featured}
         disabled={pending || locked}
         onChange={async (event) => {
+          const next = event.target.checked;
           setPending(true);
-          await onToggle(event.target.checked);
-          setPending(false);
-          router.refresh();
+          try {
+            await onToggle(next);
+            router.refresh();
+          } catch (error) {
+            console.error(error);
+            event.target.checked = !next;
+            window.alert("Could not update. Check you are logged in, then try again.");
+          } finally {
+            setPending(false);
+          }
         }}
       />
       {featured ? "Featured" : locked ? "Limit reached" : "Feature"}

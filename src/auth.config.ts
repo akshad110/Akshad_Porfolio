@@ -1,10 +1,5 @@
 import type { NextAuthConfig } from "next-auth";
 
-function publicOrigin() {
-  const raw = process.env.AUTH_URL || process.env.NEXT_PUBLIC_SITE_URL || "";
-  return raw.replace(/\/$/, "");
-}
-
 /**
  * Edge-compatible auth config only.
  * No Node-only imports (mongoose, bcrypt) — used by middleware.
@@ -28,18 +23,8 @@ export const authConfig = {
       }
       return session;
     },
-    authorized({ auth, request }) {
-      const { pathname } = request.nextUrl;
-      const isLogin = pathname.startsWith("/admin/login");
-      const isAdmin = pathname.startsWith("/admin");
-      const origin = publicOrigin();
-
-      if (isAdmin && !isLogin) return Boolean(auth);
-      if (isLogin && auth) {
-        // Never redirect to 0.0.0.0 (Docker bind host). Prefer public site URL.
-        const target = origin ? new URL("/admin", origin) : new URL("/admin", request.nextUrl);
-        return Response.redirect(target);
-      }
+    // Page protection is handled in middleware.ts so Server Actions are not redirected.
+    authorized() {
       return true;
     },
   },
