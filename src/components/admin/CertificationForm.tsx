@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { FEATURED_LIMIT } from "@/types";
-import { saveCertification } from "@/lib/actions/admin";
 
 type CertificationDefaults = {
   id?: string;
@@ -32,20 +31,35 @@ export function CertificationForm({
     const form = event.currentTarget;
     setSaving(true);
     setError("");
-    const result = await saveCertification(new FormData(form), defaults?.id);
-    setSaving(false);
-    if (result.error) {
-      setError(result.error);
-      return;
-    }
-    if (editing) {
-      router.push("/admin/certifications");
+
+    try {
+      const formData = new FormData(form);
+      if (defaults?.id) formData.set("id", defaults.id);
+
+      const response = await fetch("/api/admin/certifications", {
+        method: "POST",
+        body: formData,
+      });
+      const payload = (await response.json().catch(() => ({}))) as { error?: string };
+
+      if (!response.ok) {
+        setError(payload.error ?? `Save failed (${response.status}). Sign in again and retry.`);
+        return;
+      }
+
+      if (editing) {
+        router.push("/admin/certifications");
+        router.refresh();
+        return;
+      }
+      form.reset();
+      setPreview(undefined);
       router.refresh();
-      return;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Network error while saving.");
+    } finally {
+      setSaving(false);
     }
-    form.reset();
-    setPreview(undefined);
-    router.refresh();
   }
 
   return (

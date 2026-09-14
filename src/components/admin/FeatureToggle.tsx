@@ -3,18 +3,19 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { FEATURED_LIMIT, PROJECT_FEATURED_LIMIT } from "@/types";
-import { setAchievementFeatured, setCertificationFeatured, setProjectFeatured } from "@/lib/actions/admin";
 
 function FeaturedSwitch({
   featured,
   featuredCount,
   limit,
-  onToggle,
+  type,
+  id,
 }: {
   featured: boolean;
   featuredCount: number;
   limit: number;
-  onToggle: (next: boolean) => Promise<unknown>;
+  type: "project" | "achievement" | "certification";
+  id: string;
 }) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
@@ -30,12 +31,22 @@ function FeaturedSwitch({
           const next = event.target.checked;
           setPending(true);
           try {
-            await onToggle(next);
+            const response = await fetch("/api/admin/featured", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ type, id, featured: next }),
+            });
+            const payload = (await response.json().catch(() => ({}))) as { error?: string };
+            if (!response.ok) {
+              event.target.checked = !next;
+              window.alert(payload.error ?? "Could not update. Sign in again and retry.");
+              return;
+            }
             router.refresh();
           } catch (error) {
             console.error(error);
             event.target.checked = !next;
-            window.alert("Could not update. Check you are logged in, then try again.");
+            window.alert("Could not update. Check your connection and try again.");
           } finally {
             setPending(false);
           }
@@ -57,10 +68,11 @@ export function FeatureToggle({
 }) {
   return (
     <FeaturedSwitch
+      id={id}
       featured={featured}
       featuredCount={featuredCount}
       limit={PROJECT_FEATURED_LIMIT}
-      onToggle={(next) => setProjectFeatured(id, next)}
+      type="project"
     />
   );
 }
@@ -76,10 +88,11 @@ export function AchievementFeatureToggle({
 }) {
   return (
     <FeaturedSwitch
+      id={id}
       featured={featured}
       featuredCount={featuredCount}
       limit={FEATURED_LIMIT}
-      onToggle={(next) => setAchievementFeatured(id, next)}
+      type="achievement"
     />
   );
 }
@@ -95,10 +108,11 @@ export function CertificationFeatureToggle({
 }) {
   return (
     <FeaturedSwitch
+      id={id}
       featured={featured}
       featuredCount={featuredCount}
       limit={FEATURED_LIMIT}
-      onToggle={(next) => setCertificationFeatured(id, next)}
+      type="certification"
     />
   );
 }

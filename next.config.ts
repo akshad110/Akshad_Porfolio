@@ -13,12 +13,16 @@ function siteHosts() {
   return [...hosts];
 }
 
+const hosts = siteHosts();
+
 const nextConfig: NextConfig = {
   output: "standalone",
   experimental: {
     serverActions: {
       bodySizeLimit: "20mb",
-      allowedOrigins: siteHosts(),
+      // Required behind Render / Docker where Host is 0.0.0.0:PORT
+      allowedOrigins: hosts,
+      allowedForwardedHosts: hosts,
     },
   },
   images: {

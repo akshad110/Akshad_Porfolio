@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { FEATURED_LIMIT } from "@/types";
-import { saveAchievement } from "@/lib/actions/admin";
 
 type AchievementDefaults = {
   id?: string;
@@ -35,21 +34,36 @@ export function AchievementForm({
     const form = event.currentTarget;
     setSaving(true);
     setError("");
-    const result = await saveAchievement(new FormData(form), defaults?.id);
-    setSaving(false);
-    if (result.error) {
-      setError(result.error);
-      return;
-    }
-    if (editing) {
-      router.push("/admin/achievements");
+
+    try {
+      const formData = new FormData(form);
+      if (defaults?.id) formData.set("id", defaults.id);
+
+      const response = await fetch("/api/admin/achievements", {
+        method: "POST",
+        body: formData,
+      });
+      const payload = (await response.json().catch(() => ({}))) as { error?: string };
+
+      if (!response.ok) {
+        setError(payload.error ?? `Save failed (${response.status}). Sign in again and retry.`);
+        return;
+      }
+
+      if (editing) {
+        router.push("/admin/achievements");
+        router.refresh();
+        return;
+      }
+      form.reset();
+      setFeatured(false);
+      setPreview(undefined);
       router.refresh();
-      return;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Network error while saving.");
+    } finally {
+      setSaving(false);
     }
-    form.reset();
-    setFeatured(false);
-    setPreview(undefined);
-    router.refresh();
   }
 
   return (
