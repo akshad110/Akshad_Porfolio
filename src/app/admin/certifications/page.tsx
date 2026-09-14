@@ -38,9 +38,10 @@ export default async function AdminCertificationsPage() {
                   featured={Boolean(item.isFeatured)}
                   featuredCount={stats.featuredCertifications}
                 />
-              </div>
-              <div className="admin-record-actions">
-                <Link href={`/admin/certifications/${String(item._id)}`} className="admin-btn-ghost h-8 px-3 text-xs">
+                <Link
+                  href={`/admin/certifications/${String(item._id)}`}
+                  className="admin-btn-ghost h-8 px-3 text-xs font-semibold text-[#22b3d7]"
+                >
                   Edit
                 </Link>
                 <DeleteButton action={deleteCertification.bind(null, String(item._id))} />
