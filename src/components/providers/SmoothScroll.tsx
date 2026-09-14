@@ -11,13 +11,15 @@ gsap.registerPlugin(ScrollTrigger);
 export function SmoothScroll({ children }: { children: React.ReactNode }) {
   useLayoutEffect(() => {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduced) {
+    const coarse = window.matchMedia("(pointer: coarse)").matches;
+    // Skip Lenis on touch/coarse devices — native scroll is faster and smoother there.
+    if (reduced || coarse) {
       ScrollTrigger.refresh();
       return;
     }
 
     const lenis = new Lenis({
-      lerp: 0.09,
+      lerp: 0.12,
       smoothWheel: true,
       syncTouch: false,
       autoRaf: false,

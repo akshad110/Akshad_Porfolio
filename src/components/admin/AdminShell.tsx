@@ -75,6 +75,7 @@ export function AdminShell({
               <Link
                 key={link.href}
                 href={link.href}
+                prefetch={false}
                 className={cn("admin-nav-pill whitespace-nowrap", isActive(pathname, link.href) && "is-active")}
               >
                 {link.label}

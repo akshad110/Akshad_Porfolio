@@ -7,12 +7,7 @@ import { Container } from "@/components/ui/Section";
 import { site } from "@/data/site";
 import { formatProjectRange } from "@/lib/utils";
 
-export const revalidate = 30;
-
-export async function generateStaticParams() {
-  const projects = await getPublishedProjects();
-  return projects.map((project) => ({ slug: project.slug }));
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;

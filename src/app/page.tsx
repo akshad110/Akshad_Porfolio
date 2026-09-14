@@ -19,7 +19,7 @@ import { createMetadata } from "@/lib/metadata";
 import { ScrollToNextPage } from "@/components/animations/ScrollToNextPage";
 import { HomeSectionScroller } from "@/components/navigation/HomeSectionScroller";
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 export const metadata = createMetadata({
   title: "Full Stack Developer & Creative Technologist",

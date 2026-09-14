@@ -1,11 +1,11 @@
 import { getPublishedProjects } from "@/lib/content/queries";
-import { withDemoProjects } from "@/data/demoProjects";
 import { Container, EmptyState } from "@/components/ui/Section";
 import { ProjectsMasonry } from "@/components/projects/ProjectsMasonry";
 import { createMetadata } from "@/lib/metadata";
 import { Button } from "@/components/ui/Button";
 
-export const revalidate = 30;
+// Always read live admin data from Mongo — do not bake seed/demo at build time.
+export const dynamic = "force-dynamic";
 
 export const metadata = createMetadata({
   title: "My Projects",
@@ -14,8 +14,7 @@ export const metadata = createMetadata({
 });
 
 export default async function ProjectsPage() {
-  const published = await getPublishedProjects();
-  const projects = withDemoProjects(published, 8);
+  const projects = await getPublishedProjects();
 
   return (
     <div className="section-space pt-24 md:pt-32">
@@ -29,7 +28,10 @@ export default async function ProjectsPage() {
           {projects.length ? (
             <ProjectsMasonry projects={projects} />
           ) : (
-            <EmptyState title="No projects available yet" text="Published projects will appear here." />
+            <EmptyState
+              title="No projects available yet"
+              text="Publish projects from the admin dashboard to show them here."
+            />
           )}
         </div>
         <div className="mt-10 sm:mt-12">

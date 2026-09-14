@@ -67,6 +67,8 @@ Health check path: `/`
 
 ## Notes
 
-- Free Render instances **spin down** after idle time; the first request can be slow.
+- Free Render instances **spin down** after idle time; the first request can be slow (~30–60s). Keep the tab open once for warm-up.
+- In MongoDB Atlas → Network Access, allow `0.0.0.0/0` (or Render outbound IPs) or public pages will fall back to seed data.
+- Admin image uploads write to `public/uploads`. On Render free Docker they are **ephemeral** — add a persistent disk mounted at `/app/public/uploads`, or re-upload after redeploy / use external image URLs.
 - Keep `.env` out of git (already gitignored).
 - Rotate any API keys that were shared in chat.

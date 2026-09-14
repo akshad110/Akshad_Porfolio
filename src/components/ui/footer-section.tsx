@@ -125,7 +125,6 @@ export function FooterSection() {
                       ) : (
                         <Link
                           href={link.href}
-                          prefetch={false}
                           className="text-sm text-foreground-secondary transition-colors hover:text-foreground"
                         >
                           {link.title}

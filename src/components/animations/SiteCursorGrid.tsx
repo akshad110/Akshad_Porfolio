@@ -9,7 +9,9 @@ export function SiteCursorGrid() {
   const [enabled, setEnabled] = useState(false);
 
   useEffect(() => {
-    setEnabled(!window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+    const fine = window.matchMedia("(pointer: fine)").matches;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    setEnabled(fine && !reduced);
   }, []);
 
   if (!enabled || pathname.startsWith("/admin")) return null;

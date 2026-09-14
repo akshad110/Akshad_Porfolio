@@ -27,14 +27,26 @@ export async function connectDb() {
     throw new Error("MONGODB_URI is not configured.");
   }
 
-  if (cache.conn) return cache.conn;
+  if (cache.conn) {
+    // Reuse hot connection — critical on Render cold starts after first hit.
+    if (mongoose.connection.readyState === 1) return cache.conn;
+  }
 
   if (!cache.promise) {
-    cache.promise = mongoose.connect(MONGODB_URI, {
-      bufferCommands: false,
-      serverSelectionTimeoutMS: 3000,
-      connectTimeoutMS: 3000,
-    });
+    cache.promise = mongoose
+      .connect(MONGODB_URI, {
+        bufferCommands: false,
+        // Atlas + Render free tier needs more headroom than 3s.
+        serverSelectionTimeoutMS: 12_000,
+        connectTimeoutMS: 12_000,
+        socketTimeoutMS: 45_000,
+        maxPoolSize: 5,
+      })
+      .then((conn) => conn)
+      .catch((error) => {
+        cache.promise = null;
+        throw error;
+      });
   }
 
   cache.conn = await cache.promise;
@@ -45,7 +57,8 @@ export async function tryConnectDb() {
   if (!MONGODB_URI) return null;
   try {
     return await connectDb();
-  } catch {
+  } catch (error) {
+    console.error("[mongo] connection failed:", error instanceof Error ? error.message : error);
     return null;
   }
 }

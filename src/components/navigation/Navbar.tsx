@@ -36,7 +36,7 @@ export function Navbar() {
       )}
     >
       <div className="container-page relative flex items-center justify-between py-4">
-        <Link href="/" prefetch={false} className="font-heading relative z-10 text-sm tracking-[0.22em] uppercase">
+        <Link href="/" className="font-heading relative z-10 text-sm tracking-[0.22em] uppercase">
           {site.shortName}
         </Link>
 
@@ -65,7 +65,6 @@ export function Navbar() {
               <Link
                 key={item.href}
                 href={item.href}
-                prefetch={false}
                 className={cn(
                   "font-heading text-xs tracking-[0.2em] uppercase transition-colors",
                   active ? "text-accent-bright" : "text-muted hover:text-foreground",
@@ -109,7 +108,6 @@ export function Navbar() {
                 ) : (
                   <Link
                     href={item.href}
-                    prefetch={false}
                     className="font-heading text-base tracking-wide uppercase sm:text-lg"
                   >
                     {item.label}
