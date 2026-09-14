@@ -100,23 +100,27 @@ export function WordReveal({
   const ref = useRef<HTMLParagraphElement>(null);
   useReplayReveal(ref);
 
-  const leadWords = lead.split(" ");
-  const mutedWords = muted.split(" ");
+  const leadWords = lead.split(/\s+/).filter(Boolean);
+  const mutedWords = muted.split(/\s+/).filter(Boolean);
 
   return (
-    <p ref={ref} className={cn("about-words", className)}>
+    <p ref={ref} className={cn("about-words text-pretty", className)}>
       {leadWords.map((word, index) => (
-        <span key={`l-${word}-${index}`} className="about-word" style={{ transitionDelay: `${index * 35}ms` }}>
-          {word}{" "}
+        <span
+          key={`l-${word}-${index}`}
+          className={cn("about-word", /[.!?]$/.test(word) && "is-sentence-end")}
+          style={{ transitionDelay: `${index * 35}ms` }}
+        >
+          {word}
         </span>
       ))}
       {mutedWords.map((word, index) => (
         <span
           key={`m-${word}-${index}`}
-          className="about-word text-muted"
+          className={cn("about-word text-muted", /[.!?]$/.test(word) && "is-sentence-end")}
           style={{ transitionDelay: `${(leadWords.length + index) * 35}ms` }}
         >
-          {word}{" "}
+          {word}
         </span>
       ))}
     </p>
