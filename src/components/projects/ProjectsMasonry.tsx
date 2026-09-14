@@ -27,8 +27,8 @@ export function ProjectsMasonry({ projects }: { projects: Project[] }) {
       <MasonryGallery
         items={items}
         animateFrom="bottom"
-        blurToFocus
-        stagger={0.08}
+        blurToFocus={false}
+        stagger={0.035}
         scaleOnHover
         hoverScale={0.96}
         colorShiftOnHover

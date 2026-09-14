@@ -9,7 +9,7 @@ export function Hero() {
   return (
     <section id="hero" className="relative z-[1] w-full bg-background">
       <div data-scroll-pin className="relative min-h-[100dvh] w-full overflow-hidden">
-        <HeroVideo src={site.heroVideo} />
+        <HeroVideo src={site.heroVideo} poster={site.heroVideoPoster} />
         <div
           className="pointer-events-none absolute inset-0 z-[1] bg-[linear-gradient(90deg,rgba(14,15,15,0.72)_0%,rgba(14,15,15,0.28)_24%,transparent_50%)]"
           aria-hidden="true"
@@ -31,8 +31,8 @@ export function Hero() {
               <Button href="/projects" className="px-4 py-2.5 text-xs">
                 View My Work
               </Button>
-              <Button href="/contact" variant="secondary" className="px-4 py-2.5 text-xs">
-                Hire Me
+              <Button href="/resume" variant="secondary" className="px-4 py-2.5 text-xs">
+                My Resume
               </Button>
             </div>
           </div>

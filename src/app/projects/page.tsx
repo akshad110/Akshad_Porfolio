@@ -3,9 +3,10 @@ import { Container, EmptyState } from "@/components/ui/Section";
 import { ProjectsMasonry } from "@/components/projects/ProjectsMasonry";
 import { createMetadata } from "@/lib/metadata";
 import { Button } from "@/components/ui/Button";
+import { optimizedMediaUrl } from "@/lib/utils";
 
-// Always read live admin data from Mongo — do not bake seed/demo at build time.
-export const dynamic = "force-dynamic";
+// Cache the page briefly; admin saves still call revalidatePath("/projects").
+export const revalidate = 60;
 
 export const metadata = createMetadata({
   title: "My Projects",
@@ -15,9 +16,16 @@ export const metadata = createMetadata({
 
 export default async function ProjectsPage() {
   const projects = await getPublishedProjects();
+  const preloadThumbs = projects
+    .slice(0, 4)
+    .map((project) => optimizedMediaUrl(project.thumbnail || project.images[0], 700))
+    .filter((src): src is string => Boolean(src));
 
   return (
     <div className="section-space pt-24 md:pt-32">
+      {preloadThumbs.map((href) => (
+        <link key={href} rel="preload" as="image" href={href} />
+      ))}
       <Container>
         <p className="section-kicker">Work</p>
         <h1 className="font-heading mt-3 text-[clamp(2rem,8vw,4.5rem)] md:mt-4">My Projects</h1>

@@ -3,13 +3,52 @@
 import { Pause, Play, Volume2, VolumeX } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
-export function HeroVideo({ src }: { src: string }) {
+export function HeroVideo({ src, poster }: { src: string; poster: string }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
   const userPausedRef = useRef(false);
   const [playing, setPlaying] = useState(true);
   const [muted, setMuted] = useState(true);
   const [inView, setInView] = useState(true);
+  const [ready, setReady] = useState(false);
+
+  // Media fragment helps browsers paint the first frame as bytes arrive.
+  const resolvedSrc = `${src.split("#")[0]}#t=0.001`;
+  const resolvedPoster = poster.split("#")[0];
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const markReady = () => setReady(true);
+    const tryPlay = () => {
+      if (userPausedRef.current) return;
+      void video
+        .play()
+        .then(() => setPlaying(true))
+        .catch(() => setPlaying(false));
+    };
+
+    const onCanPlay = () => {
+      markReady();
+      tryPlay();
+    };
+
+    video.addEventListener("loadeddata", markReady);
+    video.addEventListener("canplay", onCanPlay);
+    video.preload = "auto";
+    try {
+      video.load();
+    } catch {
+      // ignore
+    }
+    tryPlay();
+
+    return () => {
+      video.removeEventListener("loadeddata", markReady);
+      video.removeEventListener("canplay", onCanPlay);
+    };
+  }, [resolvedSrc]);
 
   useEffect(() => {
     const wrap = wrapRef.current;
@@ -20,7 +59,10 @@ export function HeroVideo({ src }: { src: string }) {
       setInView(visible);
       if (visible) {
         if (!userPausedRef.current) {
-          void video.play().then(() => setPlaying(true)).catch(() => setPlaying(false));
+          void video
+            .play()
+            .then(() => setPlaying(true))
+            .catch(() => setPlaying(false));
         }
       } else {
         video.pause();
@@ -69,16 +111,25 @@ export function HeroVideo({ src }: { src: string }) {
   };
 
   return (
-    <div ref={wrapRef} className="absolute inset-0 z-0 bg-background">
+    <div ref={wrapRef} className="absolute inset-0 z-0 bg-[#0e0f0f]">
+      {/* CSS background poster paints immediately even before <video> poster loads */}
+      <div
+        className="absolute inset-0 bg-cover bg-[center_88%]"
+        style={{ backgroundImage: `url(${resolvedPoster})` }}
+        aria-hidden="true"
+      />
       <video
         ref={videoRef}
-        src={src}
-        className="h-full min-h-full w-full min-w-full object-cover object-[center_88%] bg-background"
+        src={resolvedSrc}
+        poster={resolvedPoster}
+        className={`relative h-full min-h-full w-full min-w-full object-cover object-[center_88%] bg-transparent transition-opacity duration-200 ${ready ? "opacity-100" : "opacity-0"}`}
         autoPlay
         muted
         loop
         playsInline
-        preload="metadata"
+        preload="auto"
+        // @ts-expect-error fetchPriority is supported for media in modern browsers
+        fetchPriority="high"
       >
         Your browser does not support video playback.
       </video>

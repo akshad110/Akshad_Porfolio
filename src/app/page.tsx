@@ -18,6 +18,7 @@ import {
 import { createMetadata } from "@/lib/metadata";
 import { ScrollToNextPage } from "@/components/animations/ScrollToNextPage";
 import { HomeSectionScroller } from "@/components/navigation/HomeSectionScroller";
+import { site } from "@/data/site";
 
 export const dynamic = "force-dynamic";
 
@@ -35,8 +36,14 @@ export default async function HomePage() {
     getPublishedTestimonials(),
   ]);
 
+  const heroVideoHref = site.heroVideo.split("#")[0];
+  const heroPosterHref = site.heroVideoPoster.split("#")[0];
+
   return (
     <>
+      {/* Instant first paint + early video fetch before React hydrates */}
+      <link rel="preload" as="image" href={heroPosterHref} fetchPriority="high" />
+      <link rel="preload" as="video" href={heroVideoHref} type="video/mp4" />
       <HomeSectionScroller />
       <ScrollToNextPage>
         <Hero />

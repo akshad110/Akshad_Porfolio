@@ -96,7 +96,13 @@ function offline<T>(items: T[]): T[] {
 export async function getPublishedProjects(): Promise<Project[]> {
   const db = await tryConnectDb();
   if (!db) return offline(fallbackProjects.filter((item) => item.status === "PUBLISHED"));
-  const docs = await ProjectModel.find({ status: "PUBLISHED" }).sort({ updatedAt: -1 }).lean();
+  // Lean projection keeps the list payload light; modal still gets these fields.
+  const docs = await ProjectModel.find({ status: "PUBLISHED" })
+    .select(
+      "title slug category shortDescription description skills liveLink githubLink githubAccess thumbnail images video startDate endDate status isFeatured featuredOrder createdAt updatedAt",
+    )
+    .sort({ updatedAt: -1 })
+    .lean();
   return docs.map((doc) => mapProject(doc as Record<string, unknown>));
 }
 

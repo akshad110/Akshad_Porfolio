@@ -2,7 +2,7 @@
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import gsap from "gsap";
-import { cn } from "@/lib/utils";
+import { cn, optimizedMediaUrl } from "@/lib/utils";
 
 export type MasonryItem = {
   id: string;
@@ -19,6 +19,7 @@ type GridItem = MasonryItem & {
   h: number;
   ratio: number;
   capped: boolean;
+  displaySrc: string;
 };
 
 export type MasonryGalleryProps = {
@@ -56,6 +57,10 @@ const useMedia = (queries: string[], values: number[], defaultValue: number): nu
   return value;
 };
 
+function thumbSrc(src: string) {
+  return optimizedMediaUrl(src, 700) ?? src;
+}
+
 function loadImageRatio(src: string, fallback: number) {
   return new Promise<number>((resolve) => {
     if (!src) {
@@ -72,15 +77,19 @@ function loadImageRatio(src: string, fallback: number) {
   });
 }
 
+function fallbackRatio(item: MasonryItem) {
+  return item.height > 0 ? item.height / 400 : 1.15;
+}
+
 export function MasonryGallery({
   items,
   ease = "power3.out",
-  duration = 0.6,
-  stagger = 0.05,
+  duration = 0.45,
+  stagger = 0.04,
   animateFrom = "bottom",
   scaleOnHover = true,
   hoverScale = 0.95,
-  blurToFocus = true,
+  blurToFocus = false,
   colorShiftOnHover = false,
   className,
   itemClassName,
@@ -94,9 +103,10 @@ export function MasonryGallery({
 
   const containerRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(0);
-  const [ratios, setRatios] = useState<Record<string, number>>({});
-  const [imagesReady, setImagesReady] = useState(false);
-  const hasMounted = useRef(false);
+  const [ratios, setRatios] = useState<Record<string, number>>(() =>
+    Object.fromEntries(items.map((item) => [item.id, fallbackRatio(item)])),
+  );
+  const animatedIds = useRef(new Set<string>());
 
   useLayoutEffect(() => {
     const el = containerRef.current;
@@ -106,20 +116,26 @@ export function MasonryGallery({
     return () => ro.disconnect();
   }, []);
 
+  // Seed fallbacks immediately, then refine from the same thumb URL the <img> uses
+  // so the browser cache is shared (no full-size double-fetch).
   useEffect(() => {
     let cancelled = false;
-    setImagesReady(false);
+    setRatios((prev) => {
+      const next = { ...prev };
+      for (const item of items) {
+        if (next[item.id] == null) next[item.id] = fallbackRatio(item);
+      }
+      return next;
+    });
 
-    Promise.all(
+    void Promise.all(
       items.map(async (item) => {
-        const fallback = item.height > 0 ? item.height / 400 : 1.15;
-        const ratio = await loadImageRatio(item.img, fallback);
+        const ratio = await loadImageRatio(thumbSrc(item.img), fallbackRatio(item));
         return [item.id, ratio] as const;
       }),
     ).then((entries) => {
       if (cancelled) return;
-      setRatios(Object.fromEntries(entries));
-      setImagesReady(true);
+      setRatios((prev) => ({ ...prev, ...Object.fromEntries(entries) }));
     });
 
     return () => {
@@ -139,25 +155,25 @@ export function MasonryGallery({
 
     switch (direction) {
       case "top":
-        return { x: item.x, y: -200 };
+        return { x: item.x, y: -120 };
       case "bottom":
-        return { x: item.x, y: window.innerHeight + 200 };
+        return { x: item.x, y: item.y + 80 };
       case "left":
-        return { x: -200, y: item.y };
+        return { x: -80, y: item.y };
       case "right":
-        return { x: window.innerWidth + 200, y: item.y };
+        return { x: window.innerWidth + 80, y: item.y };
       case "center":
         return {
           x: containerRect.width / 2 - item.w / 2,
           y: containerRect.height / 2 - item.h / 2,
         };
       default:
-        return { x: item.x, y: item.y + 100 };
+        return { x: item.x, y: item.y + 60 };
     }
   };
 
   const { grid, containerHeight } = useMemo(() => {
-    if (!width || !imagesReady) return { grid: [] as GridItem[], containerHeight: 0 };
+    if (!width) return { grid: [] as GridItem[], containerHeight: 0 };
 
     const colHeights = new Array(columns).fill(0);
     const gap = width < 640 ? 14 : 24;
@@ -168,20 +184,29 @@ export function MasonryGallery({
     const gridItems = items.map((child) => {
       const col = colHeights.indexOf(Math.min(...colHeights));
       const x = col * (columnWidth + gap);
-      const natural = ratios[child.id] ?? child.height / 400;
+      const natural = ratios[child.id] ?? fallbackRatio(child);
       const capped = natural > maxRatio || natural < minRatio;
       const ratio = Math.min(Math.max(natural, minRatio), maxRatio);
       const height = columnWidth * ratio;
       const y = colHeights[col];
       colHeights[col] += height + gap;
-      return { ...child, x, y, w: columnWidth, h: height, ratio: natural, capped };
+      return {
+        ...child,
+        x,
+        y,
+        w: columnWidth,
+        h: height,
+        ratio: natural,
+        capped,
+        displaySrc: thumbSrc(child.img),
+      };
     });
 
     return { grid: gridItems, containerHeight: Math.max(...colHeights, 0) };
-  }, [columns, imagesReady, items, ratios, width]);
+  }, [columns, items, ratios, width]);
 
   useLayoutEffect(() => {
-    if (!imagesReady || !grid.length) return;
+    if (!grid.length) return;
 
     grid.forEach((item, index) => {
       const element = containerRef.current?.querySelector(`[data-key="${item.id}"]`);
@@ -189,7 +214,8 @@ export function MasonryGallery({
 
       const animProps = { x: item.x, y: item.y, width: item.w, height: item.h };
 
-      if (!hasMounted.current) {
+      if (!animatedIds.current.has(item.id)) {
+        animatedIds.current.add(item.id);
         const start = getInitialPosition(item);
         gsap.fromTo(
           element,
@@ -199,15 +225,15 @@ export function MasonryGallery({
             y: start.y,
             width: item.w,
             height: item.h,
-            ...(blurToFocus && { filter: "blur(20px)" }),
+            ...(blurToFocus && { filter: "blur(8px)" }),
           },
           {
             opacity: 1,
             ...animProps,
             ...(blurToFocus && { filter: "blur(0px)" }),
-            duration: 1.2,
+            duration: 0.55,
             ease: "power3.out",
-            delay: index * stagger,
+            delay: Math.min(index, 8) * stagger,
           },
         );
       } else {
@@ -219,9 +245,7 @@ export function MasonryGallery({
         });
       }
     });
-
-    if (grid.length > 0) hasMounted.current = true;
-  }, [grid, imagesReady, stagger, animateFrom, blurToFocus, duration, ease]);
+  }, [grid, stagger, animateFrom, blurToFocus, duration, ease]);
 
   const handleMouseEnter = (element: HTMLElement) => {
     if (scaleOnHover) {
@@ -248,9 +272,9 @@ export function MasonryGallery({
       ref={containerRef}
       data-grid-ignore
       className={cn("relative w-full", className)}
-      style={{ height: containerHeight || undefined, minHeight: imagesReady ? undefined : "320px" }}
+      style={{ height: containerHeight || undefined, minHeight: width ? undefined : "320px" }}
     >
-      {grid.map((item) => (
+      {grid.map((item, index) => (
         <button
           key={item.id}
           type="button"
@@ -266,13 +290,14 @@ export function MasonryGallery({
         >
           <div className="relative h-full w-full bg-[#0e0f0f]">
             <img
-              src={item.img.startsWith("/api/media/") ? `${item.img}${item.img.includes("?") ? "&" : "?"}w=700` : item.img}
+              src={item.displaySrc}
               alt={item.title || ""}
               className={cn(
                 "h-full w-full transition-transform duration-500 group-hover:scale-[1.02]",
                 item.capped ? "object-contain object-center" : "object-cover object-top",
               )}
-              loading="lazy"
+              loading={index < 4 ? "eager" : "lazy"}
+              fetchPriority={index < 2 ? "high" : "auto"}
               decoding="async"
             />
             {colorShiftOnHover ? (

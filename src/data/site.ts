@@ -15,7 +15,8 @@ export const site = {
   codechef: "https://www.codechef.com/users/akshad_06",
   codeforces: "https://codeforces.com/profile/akshad_06",
   portrait: "/images/akshad-portrait.png",
-  heroVideo: "/videos/hero-intro.mp4?v=20260912004217",
+  heroVideo: "/videos/hero-intro.mp4?v=20260914165400",
+  heroVideoPoster: "/videos/hero-intro-poster.webp?v=20260914165400",
   ogImage: "/images/akshad-portrait.png",
   resume: "/docs/akshad-vengurlekar-resume.pdf",
 } as const;

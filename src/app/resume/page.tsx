@@ -1,7 +1,6 @@
 import { Download } from "lucide-react";
 import { site } from "@/data/site";
 import { createMetadata } from "@/lib/metadata";
-import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Section";
 
 export const metadata = createMetadata({
@@ -11,37 +10,44 @@ export const metadata = createMetadata({
 });
 
 export default function ResumePage() {
-  return (
-    <div className="section-space pt-24 md:pt-28">
-      <Container className="max-w-5xl">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="section-kicker">Resume</p>
-            <h1 className="font-heading mt-3 text-[clamp(2rem,7vw,3.5rem)]">Akshad Vengurlekar</h1>
-            <p className="mt-2 text-foreground-secondary italic">Open the PDF below or download a copy.</p>
-          </div>
-          <div className="flex flex-wrap gap-3">
-            <a
-              href={site.resume}
-              download="Akshad-Vengurlekar-Resume.pdf"
-              className="inline-flex items-center justify-center gap-2 rounded-md bg-foreground px-5 py-3 font-heading text-sm tracking-[0.14em] text-background uppercase transition-colors hover:bg-accent-hover"
-            >
-              <Download className="h-4 w-4" />
-              Download
-            </a>
-            <Button href="/contact" variant="secondary">
-              Hire Me
-            </Button>
-          </div>
-        </div>
+  const fileName = "Akshad-Vengurlekar-Resume.pdf";
 
-        <div className="mt-8 overflow-hidden rounded-2xl border border-border bg-background-secondary shadow-[0_24px_80px_rgba(0,0,0,0.35)]">
+  return (
+    <div className="pt-20 md:pt-24">
+      <div className="sticky top-[4.25rem] z-20 border-b border-border bg-[#0e0f0f]/92 backdrop-blur-md md:top-[4.75rem]">
+        <Container className="flex max-w-5xl items-center justify-between gap-3 py-3">
+          <div className="min-w-0">
+            <p className="section-kicker text-[0.7rem]">Resume</p>
+            <h1 className="font-heading truncate text-sm tracking-[0.12em] uppercase sm:text-base">
+              Akshad Vengurlekar
+            </h1>
+          </div>
+          <a
+            href={site.resume}
+            download={fileName}
+            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-md bg-foreground px-4 py-2.5 font-heading text-xs tracking-[0.14em] text-background uppercase transition-colors hover:bg-accent-hover sm:px-5 sm:text-sm"
+          >
+            <Download className="h-4 w-4" />
+            Download
+          </a>
+        </Container>
+      </div>
+
+      <Container className="max-w-5xl section-space pt-6 md:pt-8">
+        <div className="overflow-hidden rounded-2xl border border-border bg-background-secondary shadow-[0_24px_80px_rgba(0,0,0,0.35)]">
           <iframe
             title="Akshad Vengurlekar resume"
-            src={`${site.resume}#view=FitH`}
+            src={`${site.resume}#toolbar=0&view=FitH`}
             className="h-[78dvh] w-full bg-white"
           />
         </div>
+        <p className="mt-4 text-center text-sm text-muted">
+          If the preview does not load,{" "}
+          <a href={site.resume} download={fileName} className="text-accent-soft underline-offset-2 hover:underline">
+            download the PDF
+          </a>
+          .
+        </p>
       </Container>
     </div>
   );
