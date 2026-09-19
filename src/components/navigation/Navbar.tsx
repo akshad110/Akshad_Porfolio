@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { mobileNavItems, navItems, site } from "@/data/site";
 import { cn } from "@/lib/utils";
+import { scrollToTop } from "@/lib/page-scroll";
 import { Button } from "@/components/ui/Button";
 
 export function Navbar() {
@@ -22,6 +23,14 @@ export function Navbar() {
 
   useEffect(() => {
     setOpen(false);
+    if (pathname === "/") {
+      try {
+        if (sessionStorage.getItem("portfolio-scroll-section")) return;
+      } catch {
+        // ignore
+      }
+      window.scrollTo(0, 0);
+    }
   }, [pathname]);
 
   if (pathname.startsWith("/admin")) return null;
@@ -36,7 +45,14 @@ export function Navbar() {
       )}
     >
       <div className="container-page relative flex items-center justify-between py-4">
-        <Link href="/" className="font-heading relative z-10 text-sm tracking-[0.22em] uppercase">
+        <Link
+          href="/"
+          onClick={() => {
+            if (pathname === "/") scrollToTop();
+          }}
+          className="font-heading relative z-10 text-sm tracking-[0.22em] uppercase"
+          data-cursor-theme="accent"
+        >
           {site.shortName}
         </Link>
 
@@ -58,6 +74,7 @@ export function Navbar() {
                   "font-heading text-xs tracking-[0.2em] uppercase transition-colors",
                   active ? "text-accent-bright" : "text-muted hover:text-foreground",
                 )}
+                data-cursor-theme={active ? "accent" : "light"}
               >
                 {item.label}
               </a>
@@ -65,10 +82,14 @@ export function Navbar() {
               <Link
                 key={item.href}
                 href={item.href}
+                onClick={() => {
+                  if (item.href === "/" && pathname === "/") scrollToTop();
+                }}
                 className={cn(
                   "font-heading text-xs tracking-[0.2em] uppercase transition-colors",
                   active ? "text-accent-bright" : "text-muted hover:text-foreground",
                 )}
+                data-cursor-theme={active ? "accent" : "light"}
               >
                 {item.label}
               </Link>
@@ -108,6 +129,10 @@ export function Navbar() {
                 ) : (
                   <Link
                     href={item.href}
+                    onClick={() => {
+                      setOpen(false);
+                      if (item.href === "/" && pathname === "/") scrollToTop();
+                    }}
                     className="font-heading text-base tracking-wide uppercase sm:text-lg"
                   >
                     {item.label}

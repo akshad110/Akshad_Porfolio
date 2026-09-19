@@ -14,14 +14,23 @@ export function queueHomeSection(sectionId: string) {
 
 export function HomeSectionScroller() {
   useEffect(() => {
+    if ("scrollRestoration" in history) {
+      history.scrollRestoration = "manual";
+    }
+
     let sectionId = "";
     try {
       sectionId = sessionStorage.getItem(KEY) || "";
       if (sectionId) sessionStorage.removeItem(KEY);
     } catch {
+      window.scrollTo(0, 0);
       return;
     }
-    if (!sectionId) return;
+
+    if (!sectionId) {
+      window.scrollTo(0, 0);
+      return;
+    }
 
     const run = () => {
       const el = document.getElementById(sectionId);

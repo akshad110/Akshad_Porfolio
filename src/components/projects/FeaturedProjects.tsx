@@ -31,8 +31,8 @@ export async function FeaturedProjects() {
 
       <Container>
         <div className="mt-12">
-          <Button href="/resume" variant="secondary" external>
-            My resume
+          <Button href="/projects" variant="secondary">
+            See more
           </Button>
         </div>
       </Container>

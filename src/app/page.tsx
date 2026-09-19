@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { Hero } from "@/components/hero/Hero";
 import { AboutPreview } from "@/components/about/AboutPreview";
 import { Education } from "@/components/education/Education";
@@ -18,7 +19,6 @@ import {
 import { createMetadata } from "@/lib/metadata";
 import { ScrollToNextPage } from "@/components/animations/ScrollToNextPage";
 import { HomeSectionScroller } from "@/components/navigation/HomeSectionScroller";
-import { site } from "@/data/site";
 
 export const dynamic = "force-dynamic";
 
@@ -29,36 +29,51 @@ export const metadata = createMetadata({
   path: "/",
 });
 
-export default async function HomePage() {
-  const [achievements, certifications, quotes] = await Promise.all([
-    getFeaturedAchievementShowcase(),
-    getFeaturedCertificationShowcase(),
-    getPublishedTestimonials(),
-  ]);
-
-  const heroVideoHref = site.heroVideo.split("#")[0];
-  const heroPosterHref = site.heroVideoPoster.split("#")[0];
-
+export default function HomePage() {
   return (
     <>
-      {/* Instant first paint + early video fetch before React hydrates */}
-      <link rel="preload" as="image" href={heroPosterHref} fetchPriority="high" />
-      <link rel="preload" as="video" href={heroVideoHref} type="video/mp4" />
       <HomeSectionScroller />
       <ScrollToNextPage>
         <Hero />
         <AboutPreview />
       </ScrollToNextPage>
       <Education />
-      <FeaturedProjects />
-      <SkillsPreview />
-      <CompetitiveProgramming />
-      <AchievementHoverPreview items={achievements} />
-      <CertificationScatter items={certifications} />
+      <Suspense fallback={null}>
+        <FeaturedProjects />
+      </Suspense>
+      <Suspense fallback={null}>
+        <SkillsPreview />
+      </Suspense>
+      <Suspense fallback={null}>
+        <CompetitiveProgramming />
+      </Suspense>
+      <Suspense fallback={null}>
+        <HomeShowcase />
+      </Suspense>
       <ServicesTimeline />
       <ServicesTicker />
       <Contact />
-      <Testimonials items={quotes} />
+      <Suspense fallback={null}>
+        <HomeQuotes />
+      </Suspense>
     </>
   );
+}
+
+async function HomeShowcase() {
+  const [achievements, certifications] = await Promise.all([
+    getFeaturedAchievementShowcase(),
+    getFeaturedCertificationShowcase(),
+  ]);
+  return (
+    <>
+      <AchievementHoverPreview items={achievements} />
+      <CertificationScatter items={certifications} />
+    </>
+  );
+}
+
+async function HomeQuotes() {
+  const quotes = await getPublishedTestimonials();
+  return <Testimonials items={quotes} />;
 }

@@ -72,9 +72,9 @@ export function HeroVideo({ src, poster }: { src: string; poster: string }) {
 
     const io = new IntersectionObserver(
       ([entry]) => {
-        sync(entry.isIntersecting && entry.intersectionRatio > 0.35);
+        sync(entry.isIntersecting && entry.intersectionRatio > 0.05);
       },
-      { threshold: [0, 0.35, 0.6, 1] },
+      { threshold: [0, 0.05, 1] },
     );
     io.observe(wrap);
     return () => io.disconnect();

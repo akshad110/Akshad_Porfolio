@@ -52,6 +52,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${titillium.variable} ${playfair.variable}`}>
+      <head>
+        <link rel="preload" as="image" href={site.heroVideoPoster} fetchPriority="high" />
+        <link rel="preload" as="video" href={site.heroVideo.split("#")[0]} type="video/mp4" />
+      </head>
       <body className="text-foreground antialiased">
         <JsonLd />
         <Providers>

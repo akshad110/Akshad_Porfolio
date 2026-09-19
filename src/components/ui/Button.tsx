@@ -34,11 +34,13 @@ export function Button({
 
   if (href) {
     const isHashLink = href.includes("#");
+    const theme = variant === "primary" ? "ink" : variant === "secondary" ? "accent" : "light";
     if (isHashLink || external) {
       return (
         <a
           href={href}
           className={styles}
+          data-cursor-theme={theme}
           target={external ? "_blank" : undefined}
           rel={external ? "noopener noreferrer" : undefined}
         >
@@ -48,14 +50,20 @@ export function Button({
     }
 
     return (
-      <Link href={href} className={styles}>
+      <Link href={href} className={styles} data-cursor-theme={theme}>
         {children}
       </Link>
     );
   }
 
   return (
-    <button type={type} className={styles} onClick={onClick} disabled={disabled}>
+    <button
+      type={type}
+      className={styles}
+      onClick={onClick}
+      disabled={disabled}
+      data-cursor-theme={variant === "primary" ? "ink" : "accent"}
+    >
       {children}
     </button>
   );

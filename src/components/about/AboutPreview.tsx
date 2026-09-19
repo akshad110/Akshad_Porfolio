@@ -16,7 +16,7 @@ export function AboutPreview() {
     <section
       id="about"
       data-grid-ignore
-      className="relative z-20 overflow-x-clip rounded-t-[22px] bg-background shadow-[0_-32px_80px_rgba(0,0,0,0.45)] md:min-h-[100dvh] md:rounded-t-[28px]"
+      className="relative z-20 overflow-x-clip bg-background md:min-h-[100dvh] md:rounded-t-[28px] md:shadow-[0_-32px_80px_rgba(0,0,0,0.45)]"
     >
       <div className="container-page flex flex-col justify-center py-16 md:min-h-[100dvh] md:py-28">
         <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1.05fr)_220px_minmax(0,0.55fr)] lg:gap-8">

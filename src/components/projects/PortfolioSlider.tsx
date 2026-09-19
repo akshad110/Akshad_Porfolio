@@ -37,6 +37,7 @@ export function PortfolioSlider({ projects }: { projects: Project[] }) {
   const lastTimeRef = useRef<number | null>(null);
   const draggingRef = useRef(false);
   const dragStartXRef = useRef(0);
+  const dragStartYRef = useRef(0);
   const dragStartOffsetRef = useRef(0);
   const draggedRef = useRef(false);
   const pressedSlugRef = useRef<string | null>(null);
@@ -99,6 +100,7 @@ export function PortfolioSlider({ projects }: { projects: Project[] }) {
       draggingRef.current = true;
       draggedRef.current = false;
       dragStartXRef.current = event.clientX;
+      dragStartYRef.current = event.clientY;
       dragStartOffsetRef.current = offsetRef.current;
       lastTimeRef.current = null;
       const card = (event.target as HTMLElement | null)?.closest("[data-project-slug]");
@@ -107,38 +109,53 @@ export function PortfolioSlider({ projects }: { projects: Project[] }) {
 
     const onPointerMove = (event: PointerEvent) => {
       if (!draggingRef.current) return;
-      const delta = event.clientX - dragStartXRef.current;
-      if (Math.abs(delta) <= DRAG_THRESHOLD) return;
-      if (!draggedRef.current) {
-        draggedRef.current = true;
+      const dx = event.clientX - dragStartXRef.current;
+      const dy = event.clientY - dragStartYRef.current;
+      if (Math.abs(dx) <= DRAG_THRESHOLD && Math.abs(dy) <= DRAG_THRESHOLD) return;
+      draggedRef.current = true;
+      if (Math.abs(dy) > Math.abs(dx)) return;
+      if (!viewport.hasPointerCapture(event.pointerId)) {
         viewport.setPointerCapture(event.pointerId);
         setGrabbing(true);
       }
-      offsetRef.current = wrapOffset(dragStartOffsetRef.current + delta, loopWidthRef.current);
+      offsetRef.current = wrapOffset(dragStartOffsetRef.current + dx, loopWidthRef.current);
       track.style.transform = `translate3d(${offsetRef.current}px, 0, 0)`;
+    };
+
+    const resetPress = () => {
+      draggingRef.current = false;
+      draggedRef.current = false;
+      pressedSlugRef.current = null;
+      lastTimeRef.current = null;
+      setGrabbing(false);
     };
 
     const onPointerUp = (event: PointerEvent) => {
       if (!draggingRef.current) return;
-      draggingRef.current = false;
-      lastTimeRef.current = null;
+      const dx = event.clientX - dragStartXRef.current;
+      const dy = event.clientY - dragStartYRef.current;
+      const slug = pressedSlugRef.current;
+      const wasDrag = draggedRef.current || Math.hypot(dx, dy) > DRAG_THRESHOLD;
       if (viewport.hasPointerCapture(event.pointerId)) {
         viewport.releasePointerCapture(event.pointerId);
       }
-      const slug = pressedSlugRef.current;
-      pressedSlugRef.current = null;
-      const wasDrag = draggedRef.current;
-      draggedRef.current = false;
-      setGrabbing(false);
+      resetPress();
       if (wasDrag || !slug) return;
       const project = projects.find((item) => item.slug === slug);
       if (project) setActive(project);
     };
 
+    const onPointerCancel = (event: PointerEvent) => {
+      if (viewport.hasPointerCapture(event.pointerId)) {
+        viewport.releasePointerCapture(event.pointerId);
+      }
+      resetPress();
+    };
+
     viewport.addEventListener("pointerdown", onPointerDown);
     viewport.addEventListener("pointermove", onPointerMove);
     viewport.addEventListener("pointerup", onPointerUp);
-    viewport.addEventListener("pointercancel", onPointerUp);
+    viewport.addEventListener("pointercancel", onPointerCancel);
 
     return () => {
       cancelAnimationFrame(frame);
@@ -146,7 +163,7 @@ export function PortfolioSlider({ projects }: { projects: Project[] }) {
       viewport.removeEventListener("pointerdown", onPointerDown);
       viewport.removeEventListener("pointermove", onPointerMove);
       viewport.removeEventListener("pointerup", onPointerUp);
-      viewport.removeEventListener("pointercancel", onPointerUp);
+      viewport.removeEventListener("pointercancel", onPointerCancel);
     };
   }, [projects]);
 
@@ -174,7 +191,6 @@ export function PortfolioSlider({ projects }: { projects: Project[] }) {
                 key={`${setIndex}-${project.id}-${index}`}
                 project={project}
                 eager={setIndex === 0}
-                onOpen={() => setActive(project)}
               />
             ))}
           </div>
@@ -188,11 +204,9 @@ export function PortfolioSlider({ projects }: { projects: Project[] }) {
 function SliderCard({
   project,
   eager,
-  onOpen,
 }: {
   project: Project;
   eager?: boolean;
-  onOpen: () => void;
 }) {
   const [shotFailed, setShotFailed] = useState(false);
   const preview =
@@ -203,7 +217,6 @@ function SliderCard({
   return (
     <button
       type="button"
-      onClick={onOpen}
       data-cursor="interactive"
       data-project-slug={project.slug}
       aria-label={`View project ${project.title}`}
@@ -238,7 +251,7 @@ function SliderCard({
               )}
             />
           ) : null}
-          <div className="absolute inset-0 z-[2] flex items-center justify-center bg-[rgba(9,8,18,0.5)] opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100">
+          <div className="absolute inset-0 z-[2] hidden items-center justify-center bg-[rgba(9,8,18,0.5)] opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100 md:flex">
             <span className="rounded-full bg-[rgba(9,8,18,0.72)] px-4 py-2.5 font-heading text-[13px] tracking-[0.04em] text-white shadow-[0_2px_8px_rgba(0,0,0,0.35)]">
               View Project →
             </span>

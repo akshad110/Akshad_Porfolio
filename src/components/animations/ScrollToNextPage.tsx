@@ -16,27 +16,45 @@ export function ScrollToNextPage({ children }: { children: ReactNode }) {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduced) return;
 
-    const [from, to] = Array.from(wrap.children) as HTMLElement[];
-    if (!from || !to) return;
+    const desktop = window.matchMedia("(min-width: 768px)");
+    let ctx: gsap.Context | null = null;
 
-    const pinTarget = from.querySelector<HTMLElement>("[data-scroll-pin]") ?? from;
+    const teardown = () => {
+      ctx?.revert();
+      ctx = null;
+    };
 
-    const ctx = gsap.context(() => {
-      ScrollTrigger.create({
-        trigger: pinTarget,
-        start: "top top",
-        endTrigger: to,
-        end: "top top",
-        pin: pinTarget,
-        pinSpacing: false,
-        pinType: "transform",
-        anticipatePin: 1,
-        invalidateOnRefresh: true,
-      });
-    }, wrap);
+    const setup = () => {
+      teardown();
+      if (!desktop.matches) return;
 
-    ScrollTrigger.refresh();
-    return () => ctx.revert();
+      const [from, to] = Array.from(wrap.children) as HTMLElement[];
+      if (!from || !to) return;
+      const pinTarget = from.querySelector<HTMLElement>("[data-scroll-pin]") ?? from;
+
+      ctx = gsap.context(() => {
+        ScrollTrigger.create({
+          trigger: pinTarget,
+          start: "top top",
+          endTrigger: to,
+          end: "top top",
+          pin: pinTarget,
+          pinSpacing: false,
+          pinType: "transform",
+          anticipatePin: 1,
+          invalidateOnRefresh: true,
+        });
+      }, wrap);
+
+      ScrollTrigger.refresh();
+    };
+
+    setup();
+    desktop.addEventListener("change", setup);
+    return () => {
+      desktop.removeEventListener("change", setup);
+      teardown();
+    };
   }, []);
 
   return (
