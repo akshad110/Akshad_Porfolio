@@ -122,22 +122,24 @@ export function Testimonials({ items }: { items?: Quote[] }) {
           {loop.map((item, index) => (
             <li
               key={`${item.name}-${index}`}
-              className="flex w-[min(20rem,85vw)] shrink-0 flex-col rounded-2xl border border-border bg-background-secondary px-5 py-6 select-none sm:w-[min(22rem,80vw)] sm:px-6 sm:py-7"
+              className="flex w-[min(15.25rem,72vw)] shrink-0 flex-col rounded-xl border border-border bg-background-secondary px-3.5 py-4 select-none sm:w-[min(22rem,80vw)] sm:rounded-2xl sm:px-6 sm:py-7"
             >
-              <span aria-hidden className="font-heading text-4xl leading-none text-accent-bright">
+              <span aria-hidden className="font-heading text-2xl leading-none text-accent-bright sm:text-4xl">
                 ”
               </span>
-              <p className="mt-4 flex-1 text-[15px] leading-relaxed text-foreground-secondary">{item.quote}</p>
-              <div className="mt-6 flex items-center gap-3 border-t border-border pt-5">
-                <span className="grid size-9 shrink-0 place-items-center rounded-full bg-surface text-[11px] font-medium tracking-wide text-accent-soft">
+              <p className="mt-2.5 flex-1 text-[13px] leading-relaxed text-foreground-secondary sm:mt-4 sm:text-[15px]">
+                {item.quote}
+              </p>
+              <div className="mt-4 flex items-center gap-2.5 border-t border-border pt-3 sm:mt-6 sm:gap-3 sm:pt-5">
+                <span className="grid size-7 shrink-0 place-items-center rounded-full bg-surface text-[10px] font-medium tracking-wide text-accent-soft sm:size-9 sm:text-[11px]">
                   {item.name
                     .split(" ")
                     .map((part) => part[0])
                     .join("")}
                 </span>
                 <div>
-                  <p className="text-sm font-medium text-foreground">{item.name}</p>
-                  <p className="text-xs text-muted">{item.role}</p>
+                  <p className="text-xs font-medium text-foreground sm:text-sm">{item.name}</p>
+                  <p className="text-[11px] text-muted sm:text-xs">{item.role}</p>
                 </div>
               </div>
             </li>

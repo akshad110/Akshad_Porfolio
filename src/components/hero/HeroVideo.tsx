@@ -111,10 +111,9 @@ export function HeroVideo({ src, poster }: { src: string; poster: string }) {
   };
 
   return (
-    <div ref={wrapRef} className="absolute inset-0 z-0 bg-[#0e0f0f]">
-      {/* CSS background poster paints immediately even before <video> poster loads */}
+    <div ref={wrapRef} className="absolute inset-0 z-0 overflow-hidden bg-[#0e0f0f]">
       <div
-        className="absolute inset-0 bg-cover bg-[center_88%]"
+        className="absolute inset-0 hidden h-full w-full bg-cover bg-[center_88%] md:block"
         style={{ backgroundImage: `url(${resolvedPoster})` }}
         aria-hidden="true"
       />
@@ -122,7 +121,7 @@ export function HeroVideo({ src, poster }: { src: string; poster: string }) {
         ref={videoRef}
         src={resolvedSrc}
         poster={resolvedPoster}
-        className={`relative h-full min-h-full w-full min-w-full object-cover object-[center_88%] bg-transparent transition-opacity duration-200 ${ready ? "opacity-100" : "opacity-0"}`}
+        className={`absolute inset-0 h-full w-full bg-black object-contain object-top transition-opacity duration-200 md:bg-transparent md:object-cover md:object-[center_88%] ${ready ? "opacity-100" : "opacity-0"}`}
         autoPlay
         muted
         loop
@@ -133,29 +132,29 @@ export function HeroVideo({ src, poster }: { src: string; poster: string }) {
       >
         Your browser does not support video playback.
       </video>
-      <div className="absolute top-[4.75rem] right-3 z-[3] sm:top-[5.5rem] sm:right-8">
-        <div className="flex items-center gap-1.5 sm:gap-2">
+      <div className="absolute top-16 right-4 z-[3] md:top-[5.5rem] md:right-8">
+        <div className="flex items-center gap-1 md:gap-2">
           <button
             type="button"
             onClick={togglePlay}
             disabled={!inView}
-            className="rounded-md border border-white/20 bg-black/45 p-2 backdrop-blur-md disabled:opacity-40"
+            className="rounded-md border border-white/20 bg-black/45 p-1 backdrop-blur-md disabled:opacity-40 md:p-2"
             aria-label={playing ? "Pause introduction video" : "Play introduction video"}
           >
-            {playing ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+            {playing ? <Pause className="h-3 w-3 md:h-4 md:w-4" /> : <Play className="h-3 w-3 md:h-4 md:w-4" />}
           </button>
           <button
             type="button"
             onClick={toggleMute}
-            className="rounded-md border border-white/20 bg-black/45 p-2 backdrop-blur-md"
+            className="rounded-md border border-white/20 bg-black/45 p-1 backdrop-blur-md md:p-2"
             aria-label={muted ? "Unmute introduction video" : "Mute introduction video"}
           >
-            {muted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+            {muted ? <VolumeX className="h-3 w-3 md:h-4 md:w-4" /> : <Volume2 className="h-3 w-3 md:h-4 md:w-4" />}
           </button>
           <button
             type="button"
             onClick={stop}
-            className="rounded-md border border-white/20 bg-black/45 px-3 py-2 font-heading text-[11px] tracking-widest uppercase backdrop-blur-md"
+            className="rounded-md border border-white/20 bg-black/45 px-1.5 py-1 font-heading text-[8px] tracking-widest uppercase backdrop-blur-md md:px-3 md:py-2 md:text-[11px]"
           >
             Stop
           </button>

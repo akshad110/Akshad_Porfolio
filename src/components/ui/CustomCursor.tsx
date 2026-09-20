@@ -94,7 +94,7 @@ export function CustomCursor() {
       if (svg) {
         svg.style.transform = hover.current
           ? "translate(-50%, -50%) scale(1)"
-          : "translate(-50%, -50%) scale(0.28)";
+          : "translate(-50%, -50%) scale(0.38)";
       }
       if (coreRef.current) {
         coreRef.current.style.transform = hover.current
@@ -134,26 +134,26 @@ export function CustomCursor() {
   return (
     <div ref={rootRef} aria-hidden="true" className="pointer-events-none fixed top-0 left-0 z-[90] hidden md:block">
       <svg
-        width="72"
-        height="72"
-        viewBox="0 0 72 72"
+        width="44"
+        height="44"
+        viewBox="0 0 44 44"
         className="absolute top-0 left-0 origin-center"
-        style={{ transform: "translate(-50%, -50%) scale(0.28)" }}
+        style={{ transform: "translate(-50%, -50%) scale(0.38)" }}
       >
         <defs>
-          <linearGradient id="cursor-theme-grad" x1="8" y1="8" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+          <linearGradient id="cursor-theme-grad" x1="4" y1="4" x2="40" y2="40" gradientUnits="userSpaceOnUse">
             <stop ref={startRef} offset="0%" stopColor="#f8f8f8" />
             <stop ref={endRef} offset="100%" stopColor="#22b3d7" />
           </linearGradient>
         </defs>
         <circle
           ref={ringRef}
-          cx="36"
-          cy="36"
-          r="33"
+          cx="22"
+          cy="22"
+          r="19"
           fill="transparent"
           stroke="url(#cursor-theme-grad)"
-          strokeWidth="2.2"
+          strokeWidth="2"
         />
       </svg>
       <div
